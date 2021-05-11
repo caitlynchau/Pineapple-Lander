@@ -14,34 +14,6 @@
 #include "Util.h"
 
 GravityForce::GravityForce(const ofVec3f &g) {
-<<<<<<< HEAD
-    this->g = g;
-}
-
-void GravityForce::updateForce(ofVec3f &forces, float t) {
-    forces += g;
-}
-ThrustForce::ThrustForce(float magnitude) {
-    this->magnitude = magnitude;
-}
-
-void ThrustForce::updateForce(ofVec3f &forces, float t) {
-    forces.y += t;
-}
-TurbulenceForce::TurbulenceForce(const ofVec3f &min, const ofVec3f &max) {
-    tmin = min;
-    tmax = max;
-}
-
-void TurbulenceForce::updateForce(ofVec3f &forces, float t) {
-    //
-    // We are going to add a little "noise" to a particles
-    // forces to achieve a more natual look to the motion
-    //
-    forces.x += ofRandom(tmin.x, tmax.x);
-    forces.y += ofRandom(tmin.y, tmax.y);
-    forces.z += ofRandom(tmin.z, tmax.z);
-=======
 	this->g = g;
 }
 
@@ -68,27 +40,18 @@ void TurbulenceForce::updateForce(ofVec3f &forces, float t) {
 	forces.x += ofRandom(tmin.x, tmax.x);
 	forces.y += ofRandom(tmin.y, tmax.y);
 	forces.z += ofRandom(tmin.z, tmax.z);
->>>>>>> moved files to openFrameworks myApps folder
 }
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
 //
-<<<<<<< HEAD
-void ofApp::setup(){
-=======
 void ofApp::setup() {
->>>>>>> moved files to openFrameworks myApps folder
 	bWireframe = false;
 	bDisplayPoints = false;
 	bAltKeyDown = false;
 	bCtrlKeyDown = false;
 	bLanderLoaded = false;
 	bTerrainSelected = true;
-<<<<<<< HEAD
-//	ofSetWindowShape(1024, 768);
-=======
 	//	ofSetWindowShape(1024, 768);
->>>>>>> moved files to openFrameworks myApps folder
 	cam.setDistance(25);
 	cam.setNearClip(.1);
 	cam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
@@ -96,34 +59,19 @@ void ofApp::setup() {
 	cam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
-<<<<<<< HEAD
-    
-    //Initialize forces
-    g = new GravityForce(ofVec3f(0,-3.72,0));
-    tf = new ThrustForce(10.0);
-    turb = new TurbulenceForce(ofVec3f(-10,-10,-10), ofVec3f(10,10,10));
-=======
 
 	//Initialize forces
 	g = new GravityForce(ofVec3f(0, -3.72, 0));
 	tf = new ThrustForce(10.0);
 	turb = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
->>>>>>> moved files to openFrameworks myApps folder
 	// setup rudimentary lighting 
 	//
 	initLightingAndMaterials();
 
-<<<<<<< HEAD
-	if(mars.loadModel("mars-low-5x-v2.obj"))
-        cout << "Model loaded" << endl;
-    else
-        cout << "Load failed" << endl;
-=======
 	if (mars.loadModel("mars-low-5x-v2.obj"))
 		cout << "Model loaded" << endl;
 	else
 		cout << "Load failed" << endl;
->>>>>>> moved files to openFrameworks myApps folder
 	mars.setScaleNormalization(false);
 
 	// create sliders for testing
@@ -135,34 +83,6 @@ void ofApp::setup() {
 	//  Create Octree for testing.
 	//
 	float beg = ofGetElapsedTimeMillis();
-<<<<<<< HEAD
-    octree.create(mars.getMesh(0), 20);
-    float fin = ofGetElapsedTimeMillis();
-    //cout << "Octree Creation Time: " << fin - beg << " millisec" << endl;
-    octreeCreation = fin - beg;
-    openFile();
-    //cout << "Octree Creation Time: " << octreeCreation << " milliseconds" << endl;
-    timeData << "Octree Creation Time: " << octreeCreation << " milliseconds\n";
-//    closeFile();
-    
-	cout << "Number of Verts: " << mars.getMesh(0).getNumVertices() << endl;
-    ofVec3f point;
-        mouseIntersectPlane(ofVec3f(0, 0, 0), cam.getZAxis(), point);
-        if (lander.loadModel("lander.obj")) {
-            lander.setScaleNormalization(false);
-    //        lander.setScale(.1, .1, .1);
-        //    lander.setPosition(point.x, point.y, point.z);
-            lander.setPosition(1, 1, 0);
-
-            bLanderLoaded = true;
-            for (int i = 0; i < lander.getMeshCount(); i++) {
-                bboxList.push_back(Octree::meshBounds(lander.getMesh(i)));
-            }
-
-            cout << "Mesh Count: " << lander.getMeshCount() << endl;
-        }
-        else cout << "Error: Can't load model" << endl;
-=======
 	octree.create(mars.getMesh(0), 20);
 	float fin = ofGetElapsedTimeMillis();
 	//cout << "Octree Creation Time: " << fin - beg << " millisec" << endl;
@@ -189,60 +109,15 @@ void ofApp::setup() {
 		cout << "Mesh Count: " << lander.getMeshCount() << endl;
 	}
 	else cout << "Error: Can't load model" << endl;
->>>>>>> moved files to openFrameworks myApps folder
 
 	testBox = Box(Vector3(3, 3, 0), Vector3(5, 5, 2));
 
 }
-<<<<<<< HEAD
- 
-=======
 
->>>>>>> moved files to openFrameworks myApps folder
 //--------------------------------------------------------------
 // incrementally update scene (animation)
 //
 void ofApp::update() {
-<<<<<<< HEAD
-    //saveFile();
-   
-    integrate();
-    //g->updateForce(forces, 1.62);
-    //tf->updateForce(forces, 5);
-    
-}
-void ofApp::integrate() {
-
-    //pos += (velocity*dt);
-    glm::vec3 current = lander.getPosition();
-    current += (velocity*dt);
-    lander.setPosition(current.x, current.y, current.z);
-    // 1D angular motion using omega (angular velocity)
-    //
-    //rotation += (angularVelocity*dt);
-
-    // update acceleration with accumulated paritcles forces
-    // (a = 1/m * f)
-    //
-    ofVec3f accel = acceleration;    // start with any acceleration already on the particle
-    accel += (forces * (1.0 / mass));
-    //cout << "accel: " << accel << endl;
-    velocity += accel * dt;
-    
-    //add damping
-    velocity *= 0.9;
-    cout << velocity << endl;
-    angularVelocity *= 0.99;
-    
-    forces = ofVec3f(0,0,0);
-
-}
-void ofApp::openFile() {
-    timeData.open("timeData.txt", ofFile::WriteOnly);
-}
-void ofApp::closeFile() {
-    timeData.close();
-=======
 	//saveFile();
 
 	integrate();
@@ -281,7 +156,6 @@ void ofApp::openFile() {
 }
 void ofApp::closeFile() {
 	timeData.close();
->>>>>>> moved files to openFrameworks myApps folder
 }
 void ofApp::saveFile()
 {
@@ -297,13 +171,8 @@ void ofApp::draw() {
 
 	cam.begin();
 	ofPushMatrix();
-<<<<<<< HEAD
-//    ofSetColor(ofColor::purple);
-//    Octree::drawBox(testBox);
-=======
 	//    ofSetColor(ofColor::purple);
 	//    Octree::drawBox(testBox);
->>>>>>> moved files to openFrameworks myApps folder
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
 		ofSetColor(ofColor::slateGray);
@@ -340,11 +209,7 @@ void ofApp::draw() {
 
 				Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 				ofSetColor(ofColor::white);
-<<<<<<< HEAD
-                ofNoFill();
-=======
 				ofNoFill();
->>>>>>> moved files to openFrameworks myApps folder
 				Octree::drawBox(bounds);
 
 				// draw colliding boxes
@@ -383,11 +248,7 @@ void ofApp::draw() {
 	if (bDisplayLeafNodes) {
 		octree.drawLeafNodes(octree.root);
 		//cout << "num leaf: " << octree.numLeaf << endl;
-<<<<<<< HEAD
-    }
-=======
 	}
->>>>>>> moved files to openFrameworks myApps folder
 	else if (bDisplayOctree) {
 		ofNoFill();
 		ofSetColor(ofColor::white);
@@ -405,11 +266,7 @@ void ofApp::draw() {
 
 	ofPopMatrix();
 	cam.end();
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> moved files to openFrameworks myApps folder
 }
 
 
@@ -426,11 +283,7 @@ void ofApp::drawAxis(ofVec3f location) {
 	// X Axis
 	ofSetColor(ofColor(255, 0, 0));
 	ofDrawLine(ofPoint(0, 0, 0), ofPoint(1, 0, 0));
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> moved files to openFrameworks myApps folder
 
 	// Y Axis
 	ofSetColor(ofColor(0, 255, 0));
@@ -490,37 +343,6 @@ void ofApp::keyPressed(int key) {
 	case 'w':
 		toggleWireframeMode();
 		break;
-<<<<<<< HEAD
-    case 'z':
-        bZAxis = true;
-        break;
-    case OF_KEY_RIGHT:
-        velocity.x += 5;
-        bKeyPressed = true;
-        cout << "right" << endl;
-        break;
-    case OF_KEY_LEFT:
-        bKeyPressed = true;
-        velocity.x -= 5;
-        cout << "left" << endl;
-        break;
-    case OF_KEY_UP:     // go forward
-        bKeyPressed = true;
-        if(bZAxis)
-            velocity.z -= 5;
-        else
-            velocity.y += 5*heading().y;
-        cout << "up" << endl;
-        break;
-    case OF_KEY_DOWN:   // go backward
-        bKeyPressed = true;
-        if(bZAxis)
-            velocity.z += 5;
-        else
-            velocity.y -= 5*heading().y;
-        cout << "down" << endl;
-        break;
-=======
 	case 'z':
 		bZAxis = true;
 		break;
@@ -550,7 +372,6 @@ void ofApp::keyPressed(int key) {
 			velocity.y -= 5 * heading().y;
 		cout << "down" << endl;
 		break;
->>>>>>> moved files to openFrameworks myApps folder
 	case OF_KEY_ALT:
 		cam.enableMouseInput();
 		bAltKeyDown = true;
@@ -582,11 +403,7 @@ void ofApp::togglePointsDisplay() {
 void ofApp::keyReleased(int key) {
 
 	switch (key) {
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> moved files to openFrameworks myApps folder
 	case OF_KEY_ALT:
 		cam.disableMouseInput();
 		bAltKeyDown = false;
@@ -596,23 +413,6 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
-<<<<<<< HEAD
-    case 'z':
-        bZAxis = false;
-        break;
-    case OF_KEY_RIGHT:
-        bKeyPressed = false;
-        break;
-    case OF_KEY_LEFT:
-        bKeyPressed = false;
-        break;
-    case OF_KEY_UP:     // go forward
-        bKeyPressed = false;
-        break;
-    case OF_KEY_DOWN:   // go backward
-        bKeyPressed = false;
-        break;
-=======
 	case 'z':
 		bZAxis = false;
 		break;
@@ -628,7 +428,6 @@ void ofApp::keyReleased(int key) {
 	case OF_KEY_DOWN:   // go backward
 		bKeyPressed = false;
 		break;
->>>>>>> moved files to openFrameworks myApps folder
 	default:
 		break;
 
@@ -638,15 +437,9 @@ void ofApp::keyReleased(int key) {
 
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::mouseMoved(int x, int y ){
-
-	
-=======
 void ofApp::mouseMoved(int x, int y) {
 
 
->>>>>>> moved files to openFrameworks myApps folder
 }
 
 
@@ -697,15 +490,6 @@ bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 	Ray ray = Ray(Vector3(rayPoint.x, rayPoint.y, rayPoint.z),
 		Vector3(rayDir.x, rayDir.y, rayDir.z));
 
-<<<<<<< HEAD
-    float beg = ofGetElapsedTimeMillis();
-    pointSelected = octree.intersect(ray, octree.root, selectedNode);
-    float fin = ofGetElapsedTimeMillis();
-    
-    rayIntersection = fin - beg;
-    //cout << "Ray Intersection Time: " << rayIntersection << "milliseconds" << endl;
-    timeData << "Ray Intersection Time: " << rayIntersection << "milliseconds\n";
-=======
 	float beg = ofGetElapsedTimeMillis();
 	pointSelected = octree.intersect(ray, octree.root, selectedNode);
 	float fin = ofGetElapsedTimeMillis();
@@ -713,7 +497,6 @@ bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 	rayIntersection = fin - beg;
 	//cout << "Ray Intersection Time: " << rayIntersection << "milliseconds" << endl;
 	timeData << "Ray Intersection Time: " << rayIntersection << "milliseconds\n";
->>>>>>> moved files to openFrameworks myApps folder
 
 	if (pointSelected) {
 		pointRet = octree.mesh.getVertex(selectedNode.points[0]);
@@ -737,11 +520,7 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 		glm::vec3 mousePos = getMousePointOnPlane(landerPos, cam.getZAxis());
 		glm::vec3 delta = mousePos - mouseLastPos;
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> moved files to openFrameworks myApps folder
 		landerPos += delta;
 		lander.setPosition(landerPos.x, landerPos.y, landerPos.z);
 		mouseLastPos = mousePos;
@@ -752,30 +531,6 @@ void ofApp::mouseDragged(int x, int y, int button) {
 		Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 
 		colBoxList.clear();
-<<<<<<< HEAD
-        
-        float beg = ofGetElapsedTimeMillis();
-        octree.intersect(bounds, octree.root, colBoxList);
-        float fin = ofGetElapsedTimeMillis();
-        boundIntersection = fin - beg;
-        //cout << "Box Intersection Time: " << rayIntersection << "milliseconds" << endl;
-        timeData << "Box Intersection Time: " << rayIntersection << "milliseconds\n";
-        closeFile();
-        
-//        cout << "leaves: " << colBoxList.size() << endl;
-//        if(colBoxList.size() > 0) {
-//            for(int i = 0; i < colBoxList.size(); i++) {
-//                if (bounds.overlap(colBoxList[i])) {
-//                    cout << "overlap" << endl;
-//                }
-//                else {
-//                    cout << "not" << endl;
-//                }
-//            }
-//        }
-
-    }
-=======
 
 		float beg = ofGetElapsedTimeMillis();
 		octree.intersect(bounds, octree.root, colBoxList);
@@ -798,7 +553,6 @@ void ofApp::mouseDragged(int x, int y, int button) {
 		//        }
 
 	}
->>>>>>> moved files to openFrameworks myApps folder
 	else {
 		ofVec3f p;
 		raySelectWithOctree(p);
@@ -820,38 +574,22 @@ void ofApp::setCameraTarget() {
 
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::mouseEntered(int x, int y){
-=======
 void ofApp::mouseEntered(int x, int y) {
->>>>>>> moved files to openFrameworks myApps folder
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::mouseExited(int x, int y){
-=======
 void ofApp::mouseExited(int x, int y) {
->>>>>>> moved files to openFrameworks myApps folder
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::windowResized(int w, int h){
-=======
 void ofApp::windowResized(int w, int h) {
->>>>>>> moved files to openFrameworks myApps folder
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::gotMessage(ofMessage msg){
-=======
 void ofApp::gotMessage(ofMessage msg) {
->>>>>>> moved files to openFrameworks myApps folder
 
 }
 
@@ -868,11 +606,7 @@ void ofApp::initLightingAndMaterials() {
 	{ 1.0f, 1.0f, 1.0f, 1.0f };
 
 	static float position[] =
-<<<<<<< HEAD
-	{5.0, 5.0, 5.0, 0.0 };
-=======
 	{ 5.0, 5.0, 5.0, 0.0 };
->>>>>>> moved files to openFrameworks myApps folder
 
 	static float lmodel_ambient[] =
 	{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -895,15 +629,9 @@ void ofApp::initLightingAndMaterials() {
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-<<<<<<< HEAD
-//	glEnable(GL_LIGHT1);
-	glShadeModel(GL_SMOOTH);
-} 
-=======
 	//	glEnable(GL_LIGHT1);
 	glShadeModel(GL_SMOOTH);
 }
->>>>>>> moved files to openFrameworks myApps folder
 
 void ofApp::savePicture() {
 	ofImage picture;
@@ -919,11 +647,7 @@ void ofApp::savePicture() {
 //
 void ofApp::dragEvent2(ofDragInfo dragInfo) {
 
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> moved files to openFrameworks myApps folder
 }
 
 bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point) {
