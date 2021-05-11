@@ -1,0 +1,14 @@
+PineappleLander.sln
+PineappleLander.vcxproj
+PineappleLander.vcxproj.filters
+PineappleLander.vcxproj.user
+obj
+./bin/*.dll
+./bin/PineappleLander_debug.exe
+./bin/PineappleLander_debug.exp
+./bin/PineappleLander_debug.ilk
+./bin/PineappleLander_debug.lib
+./bin/PineappleLander_debug.pdb
+.vs
+icon.rc
+addons.make
