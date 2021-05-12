@@ -1,1 +1,46 @@
+<<<<<<< HEAD
 Octree Creation Time: 5746 milliseconds
+=======
+Octree Creation Time: 51382 milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 1milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 1milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 1milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 1milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 0milliseconds
+Ray Intersection Time: 1milliseconds
+Ray Intersection Time: 0milliseconds
+>>>>>>> 77b9de50d79a206a0537a651c1562e36ecb02629
