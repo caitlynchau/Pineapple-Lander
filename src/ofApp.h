@@ -1,29 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-<<<<<<< HEAD
-
-class ofApp : public ofBaseApp{
-
-	public:
-		void setup();
-		void update();
-		void draw();
-
-		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
-		
-};
-=======
 #include "ofxGui.h"
 #include  "ofxAssimpModelLoader.h"
 #include "Octree.h"
@@ -157,5 +134,6 @@ public:
 	float mass = 1.0;
 	float damping = 0.99;
 	bool rotate;
+
+	// test 0
 };
->>>>>>> 42318d85abc74f2c0ba592b6652c6c1db16cd580
