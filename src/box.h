@@ -47,7 +47,14 @@ class Box {
 
 	// implement for Homework Project
 	//
-	bool overlap(const Box &box) {		if ((parameters[0].x() <= box.parameters[1].x() && parameters[1].x() >= box.parameters[0].x()) &&			(parameters[0].y() <= box.parameters[1].y() && parameters[1].y() >= box.parameters[0].y()) &&			(parameters[0].z() <= box.parameters[1].z() && parameters[1].z() >= box.parameters[0].z())) {			return true;		}		return false;	}
+	bool overlap(const Box &box) {
+		if ((parameters[0].x() <= box.parameters[1].x() && parameters[1].x() >= box.parameters[0].x()) &&
+			(parameters[0].y() <= box.parameters[1].y() && parameters[1].y() >= box.parameters[0].y()) &&
+			(parameters[0].z() <= box.parameters[1].z() && parameters[1].z() >= box.parameters[0].z())) {
+			return true;
+		}
+		return false;
+	}
 
 
 	Vector3 center() {

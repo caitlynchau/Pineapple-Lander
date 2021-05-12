@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-#include "ofApp.h"
-
-//--------------------------------------------------------------
-void ofApp::setup(){
-=======
-
 //--------------------------------------------------------------
 //
 //  Kevin M. Smith
@@ -117,44 +110,10 @@ void ofApp::setup() {
 	else cout << "Error: Can't load model" << endl;
 
 	testBox = Box(Vector3(3, 3, 0), Vector3(5, 5, 2));
->>>>>>> 42318d85abc74f2c0ba592b6652c6c1db16cd580
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::update(){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::draw(){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-=======
 // incrementally update scene (animation)
 //
 void ofApp::update() {
@@ -615,49 +574,20 @@ void ofApp::setCameraTarget() {
 
 //--------------------------------------------------------------
 void ofApp::mouseEntered(int x, int y) {
->>>>>>> 42318d85abc74f2c0ba592b6652c6c1db16cd580
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::mouseReleased(int x, int y, int button){
-=======
 void ofApp::mouseExited(int x, int y) {
->>>>>>> 42318d85abc74f2c0ba592b6652c6c1db16cd580
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::mouseEntered(int x, int y){
-=======
 void ofApp::windowResized(int w, int h) {
->>>>>>> 42318d85abc74f2c0ba592b6652c6c1db16cd580
 
 }
 
 //--------------------------------------------------------------
-<<<<<<< HEAD
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
-}
-=======
 void ofApp::gotMessage(ofMessage msg) {
 
 }
@@ -812,4 +742,3 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 	}
 	else return glm::vec3(0, 0, 0);
 }
->>>>>>> 42318d85abc74f2c0ba592b6652c6c1db16cd580
