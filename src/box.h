@@ -32,10 +32,6 @@ class Box {
 	Vector3 min() { return parameters[0]; }
 	Vector3 max() { return parameters[1]; }
 	const bool inside(const Vector3 &p) {
-<<<<<<< HEAD
-        
-=======
->>>>>>> 77b9de50d79a206a0537a651c1562e36ecb02629
 		return ((p.x() >= parameters[0].x() && p.x() <= parameters[1].x()) &&
 		     	(p.y() >= parameters[0].y() && p.y() <= parameters[1].y()) &&
 			    (p.z() >= parameters[0].z() && p.z() <= parameters[1].z()));
@@ -51,7 +47,6 @@ class Box {
 
 	// implement for Homework Project
 	//
-<<<<<<< HEAD
 	 bool overlap(const Box &box) {
          //check that min nor max of the given AABB is inside the AABB
          if((parameters[0].x() <= box.parameters[1].x() && parameters[1].x() >= box.parameters[0].x()) &&
@@ -62,18 +57,6 @@ class Box {
          return false;
 	}
 
-=======
-	bool overlap(const Box &box) {
-		if ((parameters[0].x() <= box.parameters[1].x() && parameters[1].x() >= box.parameters[0].x()) &&
-			(parameters[0].y() <= box.parameters[1].y() && parameters[1].y() >= box.parameters[0].y()) &&
-			(parameters[0].z() <= box.parameters[1].z() && parameters[1].z() >= box.parameters[0].z())) {
-			return true;
-		}
-		return false;
-	}
-
-
->>>>>>> 77b9de50d79a206a0537a651c1562e36ecb02629
 	Vector3 center() {
 		return ((max() - min()) / 2 + min());
 	}
