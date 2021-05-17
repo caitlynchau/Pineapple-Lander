@@ -229,7 +229,6 @@ void ofApp::drawAxis(ofVec3f location) {
 
 
 void ofApp::keyPressed(int key) {
-
 	switch (key) {
 	case 'B':
 	case 'b':
@@ -280,12 +279,12 @@ void ofApp::keyPressed(int key) {
 	case OF_KEY_RIGHT:
 		pineapple->velocity.x += 5;
 		bKeyPressed = true;
-		cout << "right" << endl;
+		//cout << "right" << endl;
 		break;
 	case OF_KEY_LEFT:
 		bKeyPressed = true;
 		pineapple->velocity.x -= 5;
-		cout << "left" << endl;
+		//cout << "left" << endl;
 		break;
 	case OF_KEY_UP:     // go forward
 		bKeyPressed = true;
@@ -293,15 +292,16 @@ void ofApp::keyPressed(int key) {
 			pineapple->velocity.z -= 5;
 		else
 			pineapple->velocity.y += 5 * pineapple->heading().y;
-		cout << "up" << endl;
+		//cout << "up" << endl;
 		break;
 	case OF_KEY_DOWN:   // go backward
-		bKeyPressed = true;
+        thrust_start = ofGetElapsedTimeMillis();
+        bKeyPressed = true;
 		if (bZAxis)
 			pineapple->velocity.z += 5;
 		else
 			pineapple->velocity.y -= 5 * pineapple->heading().y;
-		cout << "down" << endl;
+		//cout << "down" << endl;
 		break;
 	case OF_KEY_ALT:
 		cam.enableMouseInput();
@@ -332,7 +332,7 @@ void ofApp::togglePointsDisplay() {
 }
 
 void ofApp::keyReleased(int key) {
-
+    float fin;
 	switch (key) {
 
 	case OF_KEY_ALT:
@@ -357,6 +357,9 @@ void ofApp::keyReleased(int key) {
 		bKeyPressed = false;
 		break;
 	case OF_KEY_DOWN:   // go backward
+        thrust_end = ofGetElapsedTimeMillis();
+        pineapple->timeLeft -= (thrust_end - thrust_start);
+        cout << "time left: " << pineapple->timeLeft;
 		bKeyPressed = false;
 		break;
 	default:
