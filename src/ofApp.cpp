@@ -30,7 +30,11 @@ void ofApp::setup() {
 	cam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
-
+    
+    //Init forces
+    g = new GravityForce(ofVec3f(0, -3.72, 0));
+    tf = new ThrustForce(5.0);
+    turb = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
 
 	// setup rudimentary lighting 
 	//
@@ -86,7 +90,14 @@ void ofApp::update() {
 	//saveFile();
 
 	pineapple->integrate();
-
+    
+    //Update forces
+    g->updateForce(pineapple, 1.62);
+    tf->updateForce(pineapple, 5.0);
+    turb->updateForce(pineapple, 10);
+    
+    //Onscreen text to help player
+//    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
 
 }
 
@@ -277,30 +288,30 @@ void ofApp::keyPressed(int key) {
 		bZAxis = true;
 		break;
 	case OF_KEY_RIGHT:
-		pineapple->velocity.x += 5;
+		pineapple->velocity.x += 2;
 		bKeyPressed = true;
 		//cout << "right" << endl;
 		break;
 	case OF_KEY_LEFT:
 		bKeyPressed = true;
-		pineapple->velocity.x -= 5;
+		pineapple->velocity.x -= 2;
 		//cout << "left" << endl;
 		break;
 	case OF_KEY_UP:     // go forward
 		bKeyPressed = true;
 		if (bZAxis)
-			pineapple->velocity.z -= 5;
+			pineapple->velocity.z -= 2;
 		else
-			pineapple->velocity.y += 5 * pineapple->heading().y;
+			pineapple->velocity += 2 * pineapple->heading();
 		//cout << "up" << endl;
 		break;
 	case OF_KEY_DOWN:   // go backward
         thrust_start = ofGetElapsedTimeMillis();
         bKeyPressed = true;
 		if (bZAxis)
-			pineapple->velocity.z += 5;
+			pineapple->velocity.z += 2;
 		else
-			pineapple->velocity.y -= 5 * pineapple->heading().y;
+			pineapple->velocity -= 2 * pineapple->heading();
 		//cout << "down" << endl;
 		break;
 	case OF_KEY_ALT:

@@ -6,36 +6,31 @@ GravityForce::GravityForce(const ofVec3f &g) {
 	this->g = g;
 }
 
-void GravityForce::updateForce(ofVec3f &forces, float t) {
-	forces += g;
+void GravityForce::updateForce(Ship* s, float t) {
+    s->forces += g;
 }
 ThrustForce::ThrustForce(float magnitude) {
 	this->magnitude = magnitude;
 }
 
-void ThrustForce::updateForce(ofVec3f &forces, float t) {
-	forces.y += t;
+void ThrustForce::updateForce(Ship* s, float t) {
+    s->forces.y += t;
 }
 TurbulenceForce::TurbulenceForce(const ofVec3f &min, const ofVec3f &max) {
 	tmin = min;
 	tmax = max;
 }
 
-void TurbulenceForce::updateForce(ofVec3f &forces, float t) {
+void TurbulenceForce::updateForce(Ship* s, float t) {
 	//
 	// We are going to add a little "noise" to a particles
 	// forces to achieve a more natual look to the motion
 	//
 	// force
-	forces.x += ofRandom(tmin.x, tmax.x);
-	forces.y += ofRandom(tmin.y, tmax.y);
-	forces.z += ofRandom(tmin.z, tmax.z);
+    s->forces.x += ofRandom(tmin.x, tmax.x);
+    s->forces.y += ofRandom(tmin.y, tmax.y);
+    s->forces.z += ofRandom(tmin.z, tmax.z);
 }
-
-
-
-
-
 
 void Ship::integrate() {
 	//pos += (velocity*dt);
@@ -55,7 +50,7 @@ void Ship::integrate() {
 	velocity += accel * dt;
 
 	//add damping
-	velocity *= 0.9;
+	velocity *= 0.99;
 	angularVelocity *= 0.99;
 
 	forces = ofVec3f(0, 0, 0);
@@ -63,13 +58,10 @@ void Ship::integrate() {
 
 void Ship::setup() {
 	//Initialize forces
-	g = new GravityForce(ofVec3f(0, -3.72, 0));
-	tf = new ThrustForce(10.0);
-	turb = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+	
 }
 
 
 void Ship::update() {
-	//g->updateForce(forces, 1.62);
-	//tf->updateForce(forces, 5);
+	
 }
