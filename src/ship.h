@@ -2,33 +2,6 @@
 #include "ofMain.h"
 #include "ofxAssimpModelLoader.h"
 
-// move these into a separate file later lol
-class Force {
-protected:
-public:
-	bool applyOnce = false;
-	bool applied = false;
-	virtual void updateForce(ofVec3f &forces, float t) = 0;
-};
-class GravityForce : public Force {
-	ofVec3f g;
-public:
-	GravityForce(const ofVec3f &g);
-	void updateForce(ofVec3f &forces, float t);
-};
-class ThrustForce : public Force {
-	float magnitude;
-public:
-	ThrustForce(float magnitude);
-	void updateForce(ofVec3f &forces, float t);
-};
-class TurbulenceForce : public Force {
-	ofVec3f tmin, tmax;
-public:
-	TurbulenceForce(const ofVec3f & min, const ofVec3f &max);
-	void updateForce(ofVec3f &forces, float t);
-};
-
 class Ship {
 public:
 	// constructor
@@ -42,10 +15,7 @@ public:
     
 
 	//Physics variables
-	GravityForce *g;
-	ThrustForce *tf;
-	TurbulenceForce *turb;
-	ofVec3f velocity = ofVec3f(0, 7, 0);
+	ofVec3f velocity = ofVec3f(0, 0, 0);
 	ofVec3f acceleration;
 	ofVec3f forces = ofVec3f(0, 0, 0);
 	float dt = 1.0 / 60.0;
@@ -73,4 +43,30 @@ public:
 	// function prototypes
 	void update();
 	void setup();
+};
+// move these into a separate file later lol
+class Force {
+protected:
+public:
+    bool applyOnce = false;
+    bool applied = false;
+    virtual void updateForce(Ship* s, float t) = 0;
+};
+class GravityForce : public Force {
+    ofVec3f g;
+public:
+    GravityForce(const ofVec3f &g);
+    void updateForce(Ship* s, float t);
+};
+class ThrustForce : public Force {
+    float magnitude;
+public:
+    ThrustForce(float magnitude);
+    void updateForce(Ship* s, float t);
+};
+class TurbulenceForce : public Force {
+    ofVec3f tmin, tmax;
+public:
+    TurbulenceForce(const ofVec3f & min, const ofVec3f &max);
+    void updateForce(Ship* s, float t);
 };

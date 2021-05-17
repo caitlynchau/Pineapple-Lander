@@ -44,6 +44,11 @@ class ofApp : public ofBaseApp{
         //Time
         float thrust_start;
         float thrust_end;
+    
+        //Forces
+        GravityForce *g;
+        ThrustForce *tf;
+        TurbulenceForce *turb;
 
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander;
