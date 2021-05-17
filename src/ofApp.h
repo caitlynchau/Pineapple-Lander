@@ -63,9 +63,7 @@ class ofApp : public ofBaseApp{
 		bool mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point);
 		bool raySelectWithOctree(ofVec3f &pointRet);
         glm::vec3 getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
-        void openFile();
-        void closeFile();
-        void saveFile();
+
         void integrate();
         glm::vec3 heading() {
             glm::vec3 initialHeading = glm::vec3(0,-1,0);
@@ -116,10 +114,7 @@ class ofApp : public ofBaseApp{
 
 		const float selectionRange = 4.0;
         
-        ofFile timeData;
-        int octreeCreation;
-        int rayIntersection;
-        int boundIntersection;
+
     
         //Physics variables
         GravityForce *g;

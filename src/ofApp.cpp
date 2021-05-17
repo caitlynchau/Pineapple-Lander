@@ -82,15 +82,7 @@ void ofApp::setup() {
 
 	//  Create Octree for testing.
 	//
-	float beg = ofGetElapsedTimeMillis();
 	octree.create(mars.getMesh(0), 20);
-	float fin = ofGetElapsedTimeMillis();
-	//cout << "Octree Creation Time: " << fin - beg << " millisec" << endl;
-	octreeCreation = fin - beg;
-	openFile();
-	//cout << "Octree Creation Time: " << octreeCreation << " milliseconds" << endl;
-	timeData << "Octree Creation Time: " << octreeCreation << " milliseconds\n";
-	//    closeFile();
 
 	cout << "Number of Verts: " << mars.getMesh(0).getNumVertices() << endl;
 	ofVec3f point;
@@ -151,15 +143,7 @@ void ofApp::integrate() {
 	forces = ofVec3f(0, 0, 0);
 
 }
-void ofApp::openFile() {
-	timeData.open("timeData.txt", ofFile::WriteOnly);
-}
-void ofApp::closeFile() {
-	timeData.close();
-}
-void ofApp::saveFile()
-{
-}
+
 //--------------------------------------------------------------
 void ofApp::draw() {
 
@@ -490,13 +474,7 @@ bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 	Ray ray = Ray(Vector3(rayPoint.x, rayPoint.y, rayPoint.z),
 		Vector3(rayDir.x, rayDir.y, rayDir.z));
 
-	float beg = ofGetElapsedTimeMillis();
 	pointSelected = octree.intersect(ray, octree.root, selectedNode);
-	float fin = ofGetElapsedTimeMillis();
-
-	rayIntersection = fin - beg;
-	//cout << "Ray Intersection Time: " << rayIntersection << "milliseconds" << endl;
-	timeData << "Ray Intersection Time: " << rayIntersection << "milliseconds\n";
 
 	if (pointSelected) {
 		pointRet = octree.mesh.getVertex(selectedNode.points[0]);
@@ -532,13 +510,8 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 		colBoxList.clear();
 
-		float beg = ofGetElapsedTimeMillis();
 		octree.intersect(bounds, octree.root, colBoxList);
-		float fin = ofGetElapsedTimeMillis();
-		boundIntersection = fin - beg;
-		//cout << "Box Intersection Time: " << rayIntersection << "milliseconds" << endl;
-		timeData << "Box Intersection Time: " << rayIntersection << "milliseconds\n";
-		closeFile();
+
 
 		//        cout << "leaves: " << colBoxList.size() << endl;
 		//        if(colBoxList.size() > 0) {
