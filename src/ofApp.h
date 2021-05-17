@@ -6,32 +6,9 @@
 #include "ofxAssimpModelLoader.h"
 #include "Octree.h"
 #include <glm/gtx/intersect.hpp>
+#include "ship.h"
 
-class Force {
-protected:
-public:
-    bool applyOnce = false;
-    bool applied = false;
-    virtual void updateForce(ofVec3f &forces, float t) = 0;
-};
-class GravityForce: public Force {
-    ofVec3f g;
-public:
-    GravityForce(const ofVec3f &g);
-    void updateForce(ofVec3f &forces, float t);
-};
-class ThrustForce: public Force {
-    float magnitude;
-public:
-    ThrustForce(float magnitude);
-    void updateForce(ofVec3f &forces, float t);
-};
-class TurbulenceForce : public Force {
-    ofVec3f tmin, tmax;
-public:
-    TurbulenceForce(const ofVec3f & min, const ofVec3f &max);
-    void updateForce(ofVec3f &forces, float t);
-};
+
 
 
 class ofApp : public ofBaseApp{
@@ -64,20 +41,12 @@ class ofApp : public ofBaseApp{
 		bool raySelectWithOctree(ofVec3f &pointRet);
         glm::vec3 getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
 
-        void integrate();
-        glm::vec3 heading() {
-            glm::vec3 initialHeading = glm::vec3(0,-1,0);
-            glm::mat4 Mrot = glm::rotate(glm::mat4(1.0), glm::radians(rotation), glm::vec3(0,0,1));
-            glm::vec3 h = Mrot * glm::vec4(initialHeading, 1);
-            //head = glm::normalize(h);
-            return glm::normalize(h);
-        }
+   
 
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander;
 		ofLight light;
 		Box boundingBox, landerBounds;
-		Box testBox;
 		vector<Box> colBoxList;
 		bool bLanderSelected = false;
 		Octree octree;
@@ -85,8 +54,6 @@ class ofApp : public ofBaseApp{
 		glm::vec3 mouseDownPos, mouseLastPos;
 		bool bInDrag = false;
         
-        float rotation = 0.0;
-
 
 		ofxIntSlider numLevels;
 		ofxPanel gui;
@@ -112,20 +79,9 @@ class ofApp : public ofBaseApp{
 
 		vector<Box> bboxList;
 
-		const float selectionRange = 4.0;
+		const float selectionRange = 4.0; // not sure what this is for lol
         
-
-    
-        //Physics variables
-        GravityForce *g;
-        ThrustForce *tf;
-        TurbulenceForce *turb;
-        ofVec3f velocity = ofVec3f(0,7,0);
-        ofVec3f acceleration;
-        ofVec3f forces = ofVec3f(0,0,0);
-        float dt = 1.0/60.0;
-        float angularVelocity = 0;
-        float mass = 1.0;
-        float damping = 0.99;
-        bool rotate;
+		// Ship object
+		Ship *pineapple;
+        
 };

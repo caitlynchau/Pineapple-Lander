@@ -12,35 +12,6 @@
 #include "ofApp.h"
 #include "Util.h"
 
-GravityForce::GravityForce(const ofVec3f &g) {
-	this->g = g;
-}
-
-void GravityForce::updateForce(ofVec3f &forces, float t) {
-	forces += g;
-}
-ThrustForce::ThrustForce(float magnitude) {
-	this->magnitude = magnitude;
-}
-
-void ThrustForce::updateForce(ofVec3f &forces, float t) {
-	forces.y += t;
-}
-TurbulenceForce::TurbulenceForce(const ofVec3f &min, const ofVec3f &max) {
-	tmin = min;
-	tmax = max;
-}
-
-void TurbulenceForce::updateForce(ofVec3f &forces, float t) {
-	//
-	// We are going to add a little "noise" to a particles
-	// forces to achieve a more natual look to the motion
-	//
-	// force
-	forces.x += ofRandom(tmin.x, tmax.x);
-	forces.y += ofRandom(tmin.y, tmax.y);
-	forces.z += ofRandom(tmin.z, tmax.z);
-}
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
 //
@@ -60,10 +31,7 @@ void ofApp::setup() {
 	ofEnableSmoothing();
 	ofEnableDepthTest();
 
-	//Initialize forces
-	g = new GravityForce(ofVec3f(0, -3.72, 0));
-	tf = new ThrustForce(10.0);
-	turb = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+
 	// setup rudimentary lighting 
 	//
 	initLightingAndMaterials();
@@ -87,6 +55,8 @@ void ofApp::setup() {
 	cout << "Number of Verts: " << mars.getMesh(0).getNumVertices() << endl;
 	ofVec3f point;
 	mouseIntersectPlane(ofVec3f(0, 0, 0), cam.getZAxis(), point);
+	
+	// Try loading model
 	if (lander.loadModel("lander.obj")) {
 		lander.setScaleNormalization(false);
 		//        lander.setScale(.1, .1, .1);
@@ -99,10 +69,13 @@ void ofApp::setup() {
 		}
 
 		cout << "Mesh Count: " << lander.getMeshCount() << endl;
+
+		// Create new ship
+		pineapple = new Ship(lander);
+		
 	}
 	else cout << "Error: Can't load model" << endl;
 
-	testBox = Box(Vector3(3, 3, 0), Vector3(5, 5, 2));
 
 }
 
@@ -112,37 +85,11 @@ void ofApp::setup() {
 void ofApp::update() {
 	//saveFile();
 
-	integrate();
-	//g->updateForce(forces, 1.62);
-	//tf->updateForce(forces, 5);
+	pineapple->integrate();
+
 
 }
-void ofApp::integrate() {
 
-	//pos += (velocity*dt);
-	glm::vec3 current = lander.getPosition();
-	current += (velocity*dt);
-	lander.setPosition(current.x, current.y, current.z);
-	// 1D angular motion using omega (angular velocity)
-	//
-	//rotation += (angularVelocity*dt);
-
-	// update acceleration with accumulated paritcles forces
-	// (a = 1/m * f)
-	//
-	ofVec3f accel = acceleration;    // start with any acceleration already on the particle
-	accel += (forces * (1.0 / mass));
-	//cout << "accel: " << accel << endl;
-	velocity += accel * dt;
-
-	//add damping
-	velocity *= 0.9;
-	cout << velocity << endl;
-	angularVelocity *= 0.99;
-
-	forces = ofVec3f(0, 0, 0);
-
-}
 
 //--------------------------------------------------------------
 void ofApp::draw() {
@@ -162,8 +109,8 @@ void ofApp::draw() {
 		ofSetColor(ofColor::slateGray);
 		mars.drawWireframe();
 		if (bLanderLoaded) {
-			lander.drawWireframe();
-			if (!bTerrainSelected) drawAxis(lander.getPosition());
+			pineapple->model.drawWireframe();
+			if (!bTerrainSelected) drawAxis(pineapple->model.getPosition());
 		}
 		if (bTerrainSelected) drawAxis(ofVec3f(0, 0, 0));
 	}
@@ -172,14 +119,14 @@ void ofApp::draw() {
 		mars.drawFaces();
 		ofMesh mesh;
 		if (bLanderLoaded) {
-			lander.drawFaces();
-			if (!bTerrainSelected) drawAxis(lander.getPosition());
+			pineapple->model.drawFaces();
+			if (!bTerrainSelected) drawAxis(pineapple->model.getPosition());
 			if (bDisplayBBoxes) {
 				ofNoFill();
 				ofSetColor(ofColor::white);
-				for (int i = 0; i < lander.getNumMeshes(); i++) {
+				for (int i = 0; i < pineapple->model.getNumMeshes(); i++) {
 					ofPushMatrix();
-					ofMultMatrix(lander.getModelMatrix());
+					ofMultMatrix(pineapple->model.getModelMatrix());
 					ofRotate(-90, 1, 0, 0);
 					Octree::drawBox(bboxList[i]);
 					ofPopMatrix();
@@ -188,8 +135,8 @@ void ofApp::draw() {
 
 			if (bLanderSelected) {
 
-				ofVec3f min = lander.getSceneMin() + lander.getPosition();
-				ofVec3f max = lander.getSceneMax() + lander.getPosition();
+				ofVec3f min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
+				ofVec3f max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
 
 				Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 				ofSetColor(ofColor::white);
@@ -331,29 +278,29 @@ void ofApp::keyPressed(int key) {
 		bZAxis = true;
 		break;
 	case OF_KEY_RIGHT:
-		velocity.x += 5;
+		pineapple->velocity.x += 5;
 		bKeyPressed = true;
 		cout << "right" << endl;
 		break;
 	case OF_KEY_LEFT:
 		bKeyPressed = true;
-		velocity.x -= 5;
+		pineapple->velocity.x -= 5;
 		cout << "left" << endl;
 		break;
 	case OF_KEY_UP:     // go forward
 		bKeyPressed = true;
 		if (bZAxis)
-			velocity.z -= 5;
+			pineapple->velocity.z -= 5;
 		else
-			velocity.y += 5 * heading().y;
+			pineapple->velocity.y += 5 * pineapple->heading().y;
 		cout << "up" << endl;
 		break;
 	case OF_KEY_DOWN:   // go backward
 		bKeyPressed = true;
 		if (bZAxis)
-			velocity.z += 5;
+			pineapple->velocity.z += 5;
 		else
-			velocity.y -= 5 * heading().y;
+			pineapple->velocity.y -= 5 * pineapple->heading().y;
 		cout << "down" << endl;
 		break;
 	case OF_KEY_ALT:
@@ -445,14 +392,14 @@ void ofApp::mousePressed(int x, int y, int button) {
 		glm::vec3 mouseWorld = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
 		glm::vec3 mouseDir = glm::normalize(mouseWorld - origin);
 
-		ofVec3f min = lander.getSceneMin() + lander.getPosition();
-		ofVec3f max = lander.getSceneMax() + lander.getPosition();
+		ofVec3f min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
+		ofVec3f max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
 
 		Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 		bool hit = bounds.intersect(Ray(Vector3(origin.x, origin.y, origin.z), Vector3(mouseDir.x, mouseDir.y, mouseDir.z)), 0, 10000);
 		if (hit) {
 			bLanderSelected = true;
-			mouseDownPos = getMousePointOnPlane(lander.getPosition(), cam.getZAxis());
+			mouseDownPos = getMousePointOnPlane(pineapple->model.getPosition(), cam.getZAxis());
 			mouseLastPos = mouseDownPos;
 			bInDrag = true;
 		}
@@ -494,17 +441,17 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 	if (bInDrag) {
 
-		glm::vec3 landerPos = lander.getPosition();
+		glm::vec3 landerPos = pineapple->model.getPosition();
 
 		glm::vec3 mousePos = getMousePointOnPlane(landerPos, cam.getZAxis());
 		glm::vec3 delta = mousePos - mouseLastPos;
 
 		landerPos += delta;
-		lander.setPosition(landerPos.x, landerPos.y, landerPos.z);
+		pineapple->model.setPosition(landerPos.x, landerPos.y, landerPos.z);
 		mouseLastPos = mousePos;
 
-		ofVec3f min = lander.getSceneMin() + lander.getPosition();
-		ofVec3f max = lander.getSceneMax() + lander.getPosition();
+		ofVec3f min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
+		ofVec3f max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
 
 		Box bounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 
@@ -637,17 +584,17 @@ bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &
 // model is dropped in viewport, place origin under cursor
 //
 void ofApp::dragEvent(ofDragInfo dragInfo) {
-	if (lander.loadModel(dragInfo.files[0])) {
+	if (pineapple->model.loadModel(dragInfo.files[0])) {
 		bLanderLoaded = true;
-		lander.setScaleNormalization(false);
-		lander.setPosition(0, 0, 0);
-		cout << "number of meshes: " << lander.getNumMeshes() << endl;
+		pineapple->model.setScaleNormalization(false);
+		pineapple->model.setPosition(0, 0, 0);
+		cout << "number of meshes: " << pineapple->model.getNumMeshes() << endl;
 		bboxList.clear();
-		for (int i = 0; i < lander.getMeshCount(); i++) {
-			bboxList.push_back(Octree::meshBounds(lander.getMesh(i)));
+		for (int i = 0; i < pineapple->model.getMeshCount(); i++) {
+			bboxList.push_back(Octree::meshBounds(pineapple->model.getMesh(i)));
 		}
 
-		//		lander.setRotation(1, 180, 1, 0, 0);
+		//		pineapple->model.setRotation(1, 180, 1, 0, 0);
 
 				// We want to drag and drop a 3D object in space so that the model appears 
 				// under the mouse pointer where you drop it !
@@ -676,10 +623,10 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 			// Now position the lander's origin at that intersection point
 			//
-			glm::vec3 min = lander.getSceneMin();
-			glm::vec3 max = lander.getSceneMax();
+			glm::vec3 min = pineapple->model.getSceneMin();
+			glm::vec3 max = pineapple->model.getSceneMax();
 			float offset = (max.y - min.y) / 2.0;
-			lander.setPosition(intersectPoint.x, intersectPoint.y - offset, intersectPoint.z);
+			pineapple->model.setPosition(intersectPoint.x, intersectPoint.y - offset, intersectPoint.z);
 
 			// set up bounding box for lander while we are at it
 			//
