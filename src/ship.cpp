@@ -56,7 +56,6 @@ void Ship::integrate() {
 
 	//add damping
 	velocity *= 0.9;
-	cout << velocity << endl;
 	angularVelocity *= 0.99;
 
 	forces = ofVec3f(0, 0, 0);

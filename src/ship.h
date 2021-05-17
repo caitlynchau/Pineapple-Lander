@@ -37,7 +37,9 @@ public:
 	}
 
 	// Fuel
-	int fuel;
+	float timeLeft = 120000;
+    bool thrustersOn;
+    
 
 	//Physics variables
 	GravityForce *g;
