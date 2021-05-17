@@ -21,4 +21,5 @@ Makefile
 ./bin/.DS_Store
 ./src/.DS_Store
 ./bin/PineappleLanderDebug.app
+./bin/timeData.txt
 
