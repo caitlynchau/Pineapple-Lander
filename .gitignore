@@ -15,17 +15,5 @@ Makefile
 ./bin/.DS_Store
 ./src/.DS_Store
 ./bin/PineappleLanderDebug.app/
-./bin/data/timeData.txt
-./bin/*.dll
-./bin/FreeImage.dll
-./bin/PineappleLanderDebug.app/
-./bin/PineappleLander_debug.exe
-./bin/PineappleLander_debug.exp
-./bin/PineappleLander_debug.ilk
-./bin/PineappleLander_debug.lib
-./bin/PineappleLander_debug.pdb
-./bin/assimp32.dll
-./bin/assimp64.dll
-./bin/fmodex64.dll
-./bin/fmodexL64.dll
+./bin/timeData.txt
 
