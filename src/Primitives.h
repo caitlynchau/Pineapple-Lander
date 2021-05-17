@@ -1,4 +1,5 @@
 
+
 //--------------------------------------------------------------
 //
 //  Kevin M. Smith
@@ -19,8 +20,8 @@
 //  Please document/comment all of your work !
 //  Have Fun !!
 //
-//  Student Name:   Caitlyn Chau
-//  Date: 05022021
+//  Student Name:   < Your Name goes Here >
+//  Date: <date of last version>
 
 
 #include "ofApp.h"

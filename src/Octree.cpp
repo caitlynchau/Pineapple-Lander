@@ -187,52 +187,57 @@ void Octree::subdivide(const ofMesh & mesh, TreeNode & node, int numLevels, int 
 
 bool Octree::intersect(const Ray &ray, const TreeNode & node, TreeNode & nodeRtn) {
 	bool intersects = false;
-	
-	if (node.box.intersect(ray, -10000, 10000)) {
-		if (node.children.size() > 0) {
-			for (int i = 0; i < node.children.size(); i++) {
-				if (intersect(ray, node.children[i], nodeRtn)) {
-					intersects = true;
-				}
-			}
-		}
-		else {
-			nodeRtn = node;
-			intersects = true;
-		}
-	}
+    // check if the mouse ray intersects with the terrain (octree)
+    if(node.box.intersect(ray, 0.00001, 100000)) {
+        //if box has children, do the intersection test all the children boxes
+        if(node.children.size() > 0) {
+            for (int i = 0; i < node.children.size(); i++){
+                if(intersect(ray, node.children[i], nodeRtn)) {
+                    intersects = true;
+                }
+            }
+        }
+        else {
+            //value being returned is one box's intersection
+            nodeRtn = node;
+            intersects = true;
+        }
+    }
 	return intersects;
 }
-
 bool Octree::intersect(const Box &box, TreeNode & node, vector<Box> & boxListRtn) {
 	bool intersects = false;
-	// check if lander and octree box overlap
-	if (node.box.overlap(box)) {
-		// if its not a leaf note
-		if (node.children.size() > 0) {
-			// for each child, check if lander intersects with its subdivision of octree
-			for (int i = 0; i < node.children.size(); i++) {
-				intersect(box, node.children[i], boxListRtn);
-			}
-		}
-		// no more children (we've reached a leaf node)
-		else {
-			boxListRtn.push_back(node.box);
-			intersects = true;
-		}
-	}
+    // check if lander and octree box overlap
+    if(node.box.overlap(box)) {
+        //if node has no children, add to box list return
+        if(node.children.size() == 0) {
+            boxListRtn.push_back(node.box);
+            intersects = true;
+        }
+        //if node has children
+        else {
+            for (int i = 0; i < node.children.size(); i++) {
+                //check for intersection between lander and every child node's box
+                if(intersect(box, node.children[i], boxListRtn)) {
+                    intersects = true;
+                }
+            }
+        }
+    }
 	return intersects;
 }
 
 void Octree::draw(TreeNode & node, int numLevels, int level) {
-	if (level >= numLevels) return;
-	level++;
-	drawBox(node.box);
-	
-	// recursively draw 
-	for (int i = 0; i < node.children.size(); i++) {
-		draw(node.children[i], numLevels, level);
-	}
+    if(level >= numLevels)
+        return;
+    level++;
+    drawBox(node.box);
+    
+    if(node.children.size() > 0) {
+        for(int i = 0; i < node.children.size(); i++) {
+            draw(node.children[i], numLevels, level);
+        }
+    }
 }
 
 // Optional
@@ -241,7 +246,3 @@ void Octree::drawLeafNodes(TreeNode & node) {
 
 
 }
-
-
-
-

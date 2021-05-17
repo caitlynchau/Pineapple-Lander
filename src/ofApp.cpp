@@ -36,6 +36,7 @@ void TurbulenceForce::updateForce(ofVec3f &forces, float t) {
 	// We are going to add a little "noise" to a particles
 	// forces to achieve a more natual look to the motion
 	//
+	// force
 	forces.x += ofRandom(tmin.x, tmax.x);
 	forces.y += ofRandom(tmin.y, tmax.y);
 	forces.z += ofRandom(tmin.z, tmax.z);

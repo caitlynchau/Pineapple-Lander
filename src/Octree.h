@@ -1,4 +1,5 @@
 
+
 //--------------------------------------------------------------
 //
 //  Kevin M. Smith
@@ -48,4 +49,6 @@ public:
 	//
 	int strayVerts= 0;
 	int numLeaf = 0;
+    TreeNode selected;
+    vector<Box> leaves;
 };

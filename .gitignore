@@ -12,3 +12,13 @@ obj
 .vs
 icon.rc
 addons.make
+config.make
+openFrameworks-Info.plist
+PineappleLander.xcodeproj
+Project.xcconfig
+Makefile
+.DS_Store
+./bin/.DS_Store
+./src/.DS_Store
+./bin/PineappleLanderDebug.app
+

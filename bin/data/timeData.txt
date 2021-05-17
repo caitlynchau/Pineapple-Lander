@@ -1,0 +1,2 @@
+Octree Creation Time: 4877 milliseconds
+Box Intersection Time: 0milliseconds
