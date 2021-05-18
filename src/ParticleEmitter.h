@@ -6,7 +6,6 @@
 typedef enum { DirectionalEmitter, RadialEmitter, SphereEmitter } EmitterType;
 
 //  General purpose Emitter class for emitting sprites
-//  This works similar to a Particle emitter
 //
 class ParticleEmitter {
 public:

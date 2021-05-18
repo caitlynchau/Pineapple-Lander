@@ -29,17 +29,16 @@ ParticleEmitter::~ParticleEmitter() {
 }
 
 void ParticleEmitter::init() {
-	rate = 1;
-	velocity = ofVec3f(0, 20, 0);
-	lifespan = 3;
-	started = false;
+	rate = 5;
+	velocity = ofVec3f(0, -20, 0);
+	lifespan = 2;
+	started = true;
 	lastSpawned = 0;
 	radius = 1;
-	particleRadius = .1;
+	particleRadius = .2;
 	visible = true;
-	type = DirectionalEmitter;
+	type = RadialEmitter;
 }
-
 
 
 void ParticleEmitter::draw() {
@@ -50,7 +49,8 @@ void ParticleEmitter::draw() {
 			break;
 		case SphereEmitter:
 		case RadialEmitter:
-			ofDrawSphere(position, radius / 10);  // just draw a small sphere as a placeholder
+			//ofDrawSphere(ofVec3f(ofRandom(position.x-2, position.x+2), ofRandom(position.y-2, position.y+2), position.z), radius/10);
+			//ofDrawSphere(position, radius / 10);  // just draw a small sphere as a placeholder
 			break;
 		default:
 			break;
