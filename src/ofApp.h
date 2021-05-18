@@ -46,9 +46,9 @@ class ofApp : public ofBaseApp{
         float thrust_end;
     
         //Forces
-        GravityForce *g;
-        ThrustForce *tf;
-        TurbulenceForce *turb;
+        GravityForce *gravityForce;
+        ThrustForce *thrustForce;
+        TurbulenceForce *turbForce;
 
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander;
@@ -65,7 +65,7 @@ class ofApp : public ofBaseApp{
 		ofxIntSlider numLevels;
 		ofxPanel gui;
 
-        bool bZAxis;
+		bool bSpacePressed = false;
         bool bAltKeyDown;
 		bool bCtrlKeyDown;
 		bool bWireframe;

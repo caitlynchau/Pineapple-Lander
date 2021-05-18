@@ -14,7 +14,7 @@ Particle::Particle() {
 	radius = .1;
 	damping = .99;
 	mass = 1;
-	color = ofColor::cadetBlue;
+	color = ofColor::white;
 }
 
 void Particle::draw() {
