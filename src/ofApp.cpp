@@ -33,8 +33,8 @@ void ofApp::setup() {
     
     //Init forces
     gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
-    //thrustForce = new ThrustForce(5.0);
-    //turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+    thrustForce = new ThrustForce(5.0);
+    turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
 
 	// setup rudimentary lighting 
 	//
@@ -78,6 +78,7 @@ void ofApp::setup() {
 		pineapple = new Ship(lander);
 		pineapple->setup();
 		
+		
 	}
 	else cout << "Error: Can't load model" << endl;
 
@@ -94,11 +95,15 @@ void ofApp::update() {
 	pineapple->update();
     
     //Update forces
-    gravityForce->updateForce(pineapple, -3);
+    gravityForce->updateForce(pineapple, -3.72);
 
 	// commented this out for now lololol
-	//thrustForce->updateForce(pineapple, 5.0);
-    //turbForce->updateForce(pineapple, 10);
+	
+	if (bSpacePressed || bKeyPressed) {
+		thrustForce->updateForce(pineapple, 5.0);
+	}
+
+    turbForce->updateForce(pineapple, 10);
     
     //Onscreen text to help player
 //    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
@@ -211,7 +216,7 @@ void ofApp::draw() {
 	}
 
 	// draw ship's particle emitter
-	pineapple->draw();
+	if (bSpacePressed) 	pineapple->draw();
 
 	ofPopMatrix();
 	cam.end();
@@ -272,9 +277,12 @@ void ofApp::keyPressed(int key) {
 	case 'o':
 		bDisplayOctree = !bDisplayOctree;
 		break;
-	case 'r':
+	case 'r': // reset for debugging
 		cam.reset();
 		pineapple->model.setPosition(0, 0, 0);
+		pineapple->velocity = ofVec3f(0, 0, 0);
+		pineapple->angularVelocity = 0;
+		pineapple->rotation = 0;
 		break;
 	case 's':
 		savePicture();
@@ -294,24 +302,38 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'z':
 		break;
+	case ',': // '<' key
+		pineapple->angularVelocity -= 0.5;
+		pineapple->axis = ofVec3f(0, 1, 0);
+		bKeyPressed = true;
+		break;
+	case '.': // '>' key
+		pineapple->angularVelocity += 0.5;
+		pineapple->axis = ofVec3f(0, 1, 0);
+		bKeyPressed = true;
+		break;
 	case OF_KEY_RIGHT:
 		pineapple->velocity.x += 2;
+		pineapple->axis = ofVec3f(1, 0, 0);
 		bKeyPressed = true;
 		break;
 	case OF_KEY_LEFT:
-		bKeyPressed = true;
 		pineapple->velocity.x -= 2;
+		pineapple->axis = ofVec3f(1, 0, 0);
+		bKeyPressed = true;
 		break;
 	case OF_KEY_UP:     
 		bKeyPressed = true;
 		pineapple->velocity.z -= 2;
+		pineapple->axis = ofVec3f(0, 0, 1);
 		break;
 	case OF_KEY_DOWN: 
-        thrust_start = ofGetElapsedTimeMillis(); // move this
         bKeyPressed = true;
 		pineapple->velocity.z += 2;
+		pineapple->axis = ofVec3f(0, 0, 1);
 		break;
 	case ' ':
+		thrust_start = ofGetElapsedTimeMillis(); // move this
 		bSpacePressed = true;
 		pineapple->velocity -= 2 * pineapple->heading();
 		break;
@@ -356,7 +378,11 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
-	case 'z':
+	case '>':
+		bKeyPressed = false;
+		break;
+	case '<':
+		bKeyPressed = false;
 		break;
 	case OF_KEY_RIGHT:
 		bKeyPressed = false;
@@ -374,7 +400,7 @@ void ofApp::keyReleased(int key) {
 		bSpacePressed = false;
 		thrust_end = ofGetElapsedTimeMillis(); // move this
 		pineapple->timeLeft -= (thrust_end - thrust_start);
-		cout << "time left: " << pineapple->timeLeft;
+		cout << "time left: " << pineapple->timeLeft << endl;
 		break;
 	default:
 		break;

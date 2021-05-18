@@ -19,12 +19,14 @@ public:
 	ofVec3f velocity = ofVec3f(0, 0, 0);
 	ofVec3f acceleration;
 	ofVec3f forces = ofVec3f(0, 0, 0);
+	ofVec3f axis = ofVec3f(0, 0, 0);
 	float dt = 1.0 / 60.0;
 	float angularVelocity = 0;
 	float mass = 1.0;
 	float damping = 0.99;
 	bool rotate;
 	float rotation = 0.0;
+	
 
 	// Particle emitter for "fuel exhaust"
 	ParticleEmitter exhaust;

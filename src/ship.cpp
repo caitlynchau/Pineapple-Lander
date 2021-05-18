@@ -14,7 +14,12 @@ ThrustForce::ThrustForce(float magnitude) {
 }
 
 void ThrustForce::updateForce(Ship* s, float t) {
-    s->forces.y += t;
+
+	s->forces.x += s->axis.x * t;
+    s->forces.y += s->axis.y * t;
+	s->forces.z += s->axis.z * t;
+
+	cout << "update force " << s->forces << endl;
 }
 TurbulenceForce::TurbulenceForce(const ofVec3f &min, const ofVec3f &max) {
 	tmin = min;
@@ -35,11 +40,10 @@ void TurbulenceForce::updateForce(Ship* s, float t) {
 void Ship::integrate() {
 	//pos += (velocity*dt);
 	glm::vec3 current = model.getPosition();
-	current += (velocity*dt);
+	current += (velocity * dt);
 	model.setPosition(current.x, current.y, current.z);
-	// 1D angular motion using omega (angular velocity)
-	//
-	//rotation += (angularVelocity*dt);
+	
+	rotation += (angularVelocity * dt);
 
 	// update acceleration with accumulated paritcles forces
 	// (a = 1/m * f)
@@ -57,14 +61,6 @@ void Ship::integrate() {
 }
 
 void Ship::setup() {
-	//Initialize forces on particle emitter
-	/*
-	exhaust.setLifespan(2);
-	exhaust.setRate(2);
-	exhaust.setVelocity(ofVec3f(0, -20, 0));
-	exhaust.setParticleRadius(0.2);
-	*/
-	//exhaust.init();
 	exhaust.sys->addForce(new GravityParticleForce(ofVec3f(0, -10, 0)));
 	exhaust.sys->addForce(new TurbulenceParticleForce(ofVec3f(-2, -1, -3), ofVec3f(1, 2, 5)));
 	exhaust.start();
@@ -74,6 +70,7 @@ void Ship::setup() {
 void Ship::update() {
 	exhaust.update();
 	exhaust.setPosition(model.getPosition());
+	model.setRotation(model.getNumRotations(), rotation, 0, 1, 0);
 }
 
 void Ship::draw() {
