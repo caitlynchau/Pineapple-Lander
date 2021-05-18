@@ -13,7 +13,7 @@ public:
 
 	// Fuel
 	float timeLeft = 120000;
-    bool thrustersOn;
+    bool thrustersOn = false;
 
 	//Physics variables
 	ofVec3f velocity = ofVec3f(0, 0, 0);

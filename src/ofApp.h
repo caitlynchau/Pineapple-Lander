@@ -49,8 +49,11 @@ class ofApp : public ofBaseApp{
         GravityForce *gravityForce;
         ThrustForce *thrustForce;
         TurbulenceForce *turbForce;
-
-		ofEasyCam cam;
+        
+        ofCamera *theCam; // Pointer to set current camera
+		ofEasyCam mainCam;
+        ofCamera launchCam;
+        ofCamera onboardCam;
 		ofxAssimpModelLoader mars, lander;
 		ofLight light;
 		Box boundingBox, landerBounds;
@@ -61,8 +64,11 @@ class ofApp : public ofBaseApp{
 		glm::vec3 mouseDownPos, mouseLastPos;
 		bool bInDrag = false;
         
-
-		ofxIntSlider numLevels;
+        ofTrueTypeFont secondsText;
+        ofTrueTypeFont velocityText;
+        int seconds;
+		
+    ofxIntSlider numLevels;
 		ofxPanel gui;
 
 		bool bSpacePressed = false;

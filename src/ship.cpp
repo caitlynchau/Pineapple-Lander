@@ -68,7 +68,8 @@ void Ship::setup() {
 
 
 void Ship::update() {
-	exhaust.update();
+    if(thrustersOn)
+        exhaust.update();
 	exhaust.setPosition(model.getPosition());
 	model.setRotation(model.getNumRotations(), rotation, 0, 1, 0);
 }
@@ -76,5 +77,6 @@ void Ship::update() {
 void Ship::draw() {
 	
 	// draw ship's exhaust
-	exhaust.draw();
+    if(thrustersOn)
+        exhaust.draw();
 }
