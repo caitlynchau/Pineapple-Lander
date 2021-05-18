@@ -7,7 +7,7 @@ GravityForce::GravityForce(const ofVec3f &g) {
 }
 
 void GravityForce::updateForce(Ship* s, float t) {
-    s->forces += g;
+    s->forces.y += t;
 }
 ThrustForce::ThrustForce(float magnitude) {
 	this->magnitude = magnitude;

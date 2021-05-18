@@ -32,9 +32,9 @@ void ofApp::setup() {
 	ofEnableDepthTest();
     
     //Init forces
-    g = new GravityForce(ofVec3f(0, -3.72, 0));
-    tf = new ThrustForce(5.0);
-    turb = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+    gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
+    //thrustForce = new ThrustForce(5.0);
+    //turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
 
 	// setup rudimentary lighting 
 	//
@@ -94,9 +94,11 @@ void ofApp::update() {
 	pineapple->update();
     
     //Update forces
-    g->updateForce(pineapple, 1.62);
-    tf->updateForce(pineapple, 5.0);
-    turb->updateForce(pineapple, 10);
+    gravityForce->updateForce(pineapple, -3);
+
+	// commented this out for now lololol
+	//thrustForce->updateForce(pineapple, 5.0);
+    //turbForce->updateForce(pineapple, 10);
     
     //Onscreen text to help player
 //    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
@@ -272,6 +274,7 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'r':
 		cam.reset();
+		pineapple->model.setPosition(0, 0, 0);
 		break;
 	case 's':
 		savePicture();
@@ -290,34 +293,27 @@ void ofApp::keyPressed(int key) {
 		toggleWireframeMode();
 		break;
 	case 'z':
-		bZAxis = true;
 		break;
 	case OF_KEY_RIGHT:
 		pineapple->velocity.x += 2;
 		bKeyPressed = true;
-		//cout << "right" << endl;
 		break;
 	case OF_KEY_LEFT:
 		bKeyPressed = true;
 		pineapple->velocity.x -= 2;
-		//cout << "left" << endl;
 		break;
-	case OF_KEY_UP:     // go forward
+	case OF_KEY_UP:     
 		bKeyPressed = true;
-		if (bZAxis)
-			pineapple->velocity.z -= 2;
-		else
-			pineapple->velocity += 2 * pineapple->heading();
-		//cout << "up" << endl;
+		pineapple->velocity.z -= 2;
 		break;
-	case OF_KEY_DOWN:   // go backward
-        thrust_start = ofGetElapsedTimeMillis();
+	case OF_KEY_DOWN: 
+        thrust_start = ofGetElapsedTimeMillis(); // move this
         bKeyPressed = true;
-		if (bZAxis)
-			pineapple->velocity.z += 2;
-		else
-			pineapple->velocity -= 2 * pineapple->heading();
-		//cout << "down" << endl;
+		pineapple->velocity.z += 2;
+		break;
+	case ' ':
+		bSpacePressed = true;
+		pineapple->velocity -= 2 * pineapple->heading();
 		break;
 	case OF_KEY_ALT:
 		cam.enableMouseInput();
@@ -361,7 +357,6 @@ void ofApp::keyReleased(int key) {
 	case OF_KEY_SHIFT:
 		break;
 	case 'z':
-		bZAxis = false;
 		break;
 	case OF_KEY_RIGHT:
 		bKeyPressed = false;
@@ -369,14 +364,17 @@ void ofApp::keyReleased(int key) {
 	case OF_KEY_LEFT:
 		bKeyPressed = false;
 		break;
-	case OF_KEY_UP:     // go forward
+	case OF_KEY_UP: 
 		bKeyPressed = false;
 		break;
-	case OF_KEY_DOWN:   // go backward
-        thrust_end = ofGetElapsedTimeMillis();
-        pineapple->timeLeft -= (thrust_end - thrust_start);
-        cout << "time left: " << pineapple->timeLeft;
+	case OF_KEY_DOWN:
 		bKeyPressed = false;
+		break;
+	case ' ': // spacebar
+		bSpacePressed = false;
+		thrust_end = ofGetElapsedTimeMillis(); // move this
+		pineapple->timeLeft -= (thrust_end - thrust_start);
+		cout << "time left: " << pineapple->timeLeft;
 		break;
 	default:
 		break;
