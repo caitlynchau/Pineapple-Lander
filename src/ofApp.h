@@ -66,12 +66,12 @@ class ofApp : public ofBaseApp{
         
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
+		ofTrueTypeFont gameStateText;
         int seconds;
 		
-    ofxIntSlider numLevels;
+		ofxIntSlider numLevels;
 		ofxPanel gui;
 
-		bool bSpacePressed = false;
         bool bAltKeyDown;
 		bool bCtrlKeyDown;
 		bool bWireframe;
@@ -86,6 +86,9 @@ class ofApp : public ofBaseApp{
 		
 		bool bLanderLoaded;
 		bool bTerrainSelected;
+
+		bool gameStarted;
+		bool gameEnded;
 	
 		ofVec3f selectedPoint;
 		ofVec3f intersectPoint;
@@ -96,5 +99,10 @@ class ofApp : public ofBaseApp{
         
 		// Ship object
 		Ship *pineapple;
+
+
+
+
+		void debug();
         
 };

@@ -12,7 +12,7 @@ public:
 	}
 
 	// Fuel
-	float timeLeft = 120000;
+	float timeLeft = 10000; // 120000 
     bool thrustersOn = false;
 
 	//Physics variables
