@@ -72,7 +72,7 @@ void Ship::setup() {
 
 void Ship::update() {
 	exhaust.update();
-	
+	exhaust.setPosition(model.getPosition());
 }
 
 void Ship::draw() {

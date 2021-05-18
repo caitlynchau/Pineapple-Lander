@@ -58,6 +58,11 @@ void ParticleEmitter::draw() {
 	}
 	sys->draw();
 }
+
+void ParticleEmitter::setPosition(const ofVec3f & pos) {
+	position = pos;
+}
+
 void ParticleEmitter::start() {
 	started = true;
 	lastSpawned = ofGetElapsedTimeMillis();

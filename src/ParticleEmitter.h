@@ -42,5 +42,4 @@ public:
 	bool createdSys;
 	EmitterType type;
 
-
-};
+	};
