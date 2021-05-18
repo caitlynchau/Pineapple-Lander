@@ -14,7 +14,6 @@ public:
 	// Fuel
 	float timeLeft = 120000;
     bool thrustersOn;
-    
 
 	//Physics variables
 	ofVec3f velocity = ofVec3f(0, 0, 0);
@@ -32,8 +31,6 @@ public:
 
 	ofxAssimpModelLoader model;
 
-	void integrate();
-
 	glm::vec3 heading() {
 		glm::vec3 initialHeading = glm::vec3(0, -1, 0);
 		glm::mat4 Mrot = glm::rotate(glm::mat4(1.0), glm::radians(rotation), glm::vec3(0, 0, 1));
@@ -42,10 +39,18 @@ public:
 		return glm::normalize(h);
 	}
 
+	// from TransformObject
+	void setPosition(const ofVec3f &);
+	ofVec3f position, scale;
+	//float	rotation;
+	bool	bSelected;
+
+
 	// function prototypes
 	void update();
 	void setup();
 	void draw();
+	void integrate();
 };
 
 

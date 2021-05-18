@@ -14,12 +14,13 @@ Particle::Particle() {
 	radius = .1;
 	damping = .99;
 	mass = 1;
-	color = ofColor::aquamarine;
+	color = ofColor::cadetBlue;
 }
 
 void Particle::draw() {
 	ofSetColor(color);
-	ofDrawSphere(position, radius);
+	//ofDrawSphere(position, radius);
+	ofDrawSphere(ofVec3f(ofRandom(position.x - 2, position.x + 2), ofRandom(position.y - 2, position.y + 2), position.z), radius);
 }
 
 
