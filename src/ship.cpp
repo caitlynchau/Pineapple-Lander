@@ -72,12 +72,14 @@ void Ship::setup() {
 
 
 void Ship::update() {
-	exhaust.update();
+    if(thrustersOn)
+        exhaust.update();
 	exhaust.setPosition(model.getPosition());
 }
 
 void Ship::draw() {
 	
 	// draw ship's exhaust
-	exhaust.draw();
+    if(thrustersOn)
+        exhaust.draw();
 }
