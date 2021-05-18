@@ -76,6 +76,7 @@ void ofApp::setup() {
 
 		// Create new ship
 		pineapple = new Ship(lander);
+		pineapple->setup();
 		
 	}
 	else cout << "Error: Can't load model" << endl;
@@ -89,7 +90,8 @@ void ofApp::setup() {
 void ofApp::update() {
 	//saveFile();
 
-	pineapple->integrate();
+	pineapple->integrate(); // should we move this to ship's update?
+	pineapple->update();
     
     //Update forces
     g->updateForce(pineapple, 1.62);
@@ -165,7 +167,7 @@ void ofApp::draw() {
 	}
 	if (bTerrainSelected) drawAxis(ofVec3f(0, 0, 0));
 
-
+	
 
 	if (bDisplayPoints) {                // display points as an option    
 		glPointSize(3);
@@ -205,6 +207,9 @@ void ofApp::draw() {
 		ofSetColor(ofColor::lightGreen);
 		ofDrawSphere(p, .02 * d.length());
 	}
+
+	// draw ship's particle emitter
+	pineapple->draw();
 
 	ofPopMatrix();
 	cam.end();

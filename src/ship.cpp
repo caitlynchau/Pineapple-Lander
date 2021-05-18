@@ -57,11 +57,26 @@ void Ship::integrate() {
 }
 
 void Ship::setup() {
-	//Initialize forces
+	//Initialize forces on particle emitter
+	exhaust.setLifespan(2);
+	exhaust.setRate(2);
+	exhaust.setVelocity(ofVec3f(0, -20, 0));
+	exhaust.setParticleRadius(0.2);
+
+	exhaust.sys->addForce(new GravityParticleForce(ofVec3f(0, -10, 0)));
+	exhaust.sys->addForce(new TurbulenceParticleForce(ofVec3f(-2, -1, -3), ofVec3f(1, 2, 5)));
 	
+	exhaust.start();
 }
 
 
 void Ship::update() {
+	exhaust.update();
 	
+}
+
+void Ship::draw() {
+	
+	// draw ship's exhaust
+	exhaust.draw();
 }

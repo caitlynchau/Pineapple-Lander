@@ -1,5 +1,7 @@
 #pragma once
 #include "ofMain.h"
+#include "ParticleEmitter.h"
+#include "Particle.h"
 #include "ofxAssimpModelLoader.h"
 
 class Ship {
@@ -26,7 +28,7 @@ public:
 	float rotation = 0.0;
 
 	// Particle emitter for "fuel exhaust"
-	// TO DO
+	ParticleEmitter exhaust;
 
 	ofxAssimpModelLoader model;
 
@@ -43,7 +45,11 @@ public:
 	// function prototypes
 	void update();
 	void setup();
+	void draw();
 };
+
+
+
 // move these into a separate file later lol
 class Force {
 protected:
@@ -52,18 +58,21 @@ public:
     bool applied = false;
     virtual void updateForce(Ship* s, float t) = 0;
 };
+
 class GravityForce : public Force {
     ofVec3f g;
 public:
     GravityForce(const ofVec3f &g);
     void updateForce(Ship* s, float t);
 };
+
 class ThrustForce : public Force {
     float magnitude;
 public:
     ThrustForce(float magnitude);
     void updateForce(Ship* s, float t);
 };
+
 class TurbulenceForce : public Force {
     ofVec3f tmin, tmax;
 public:
