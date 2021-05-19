@@ -61,6 +61,8 @@ class ofApp : public ofBaseApp{
 		TreeNode selectedNode;
 		glm::vec3 mouseDownPos, mouseLastPos;
 		bool bInDrag = false;
+    vector<glm::vec3> stars;
+
         
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;

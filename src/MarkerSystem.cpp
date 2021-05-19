@@ -1,6 +1,6 @@
 #include "MarkerSystem.h"
 
-void MarkerSystem::add(const Marker &m) {
+void MarkerSystem::add(const TMarker &m) {
 	markers.push_back(m);
 }
 

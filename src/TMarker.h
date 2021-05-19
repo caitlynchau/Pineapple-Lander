@@ -2,9 +2,9 @@
 
 #include "ofMain.h"
 
-class Marker {
+class TMarker {
 public:
-	Marker(); // constructor
+	TMarker(); // constructor
 
 	ofVec3f position;
 	ofColor color;

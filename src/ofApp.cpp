@@ -14,7 +14,7 @@
 
 
 // remove later lol
-#include "Marker.h"
+//#include "TMarker.h"
 
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
@@ -28,6 +28,7 @@ void ofApp::setup() {
 	bLanderLoaded = false;
 	bTerrainSelected = true;
 	//	ofSetWindowShape(1024, 768);
+    //background.load("spongebobBG1.jpeg");
     
     launchCam.setPosition(glm::vec3(0,0,3));
     launchCam.lookAt(glm::vec3(0,0,-1));
@@ -86,7 +87,7 @@ void ofApp::setup() {
 	mouseIntersectPlane(ofVec3f(0, 0, 0), mainCam.getZAxis(), point);
 	
 	// Try loading model
-	if (lander.loadModel("lander.obj")) {
+	if (lander.loadModel("burger.obj")) {
 		lander.setScaleNormalization(false);
 		//        lander.setScale(.1, .1, .1);
 			//    lander.setPosition(point.x, point.y, point.z);
@@ -106,6 +107,23 @@ void ofApp::setup() {
 	}
 	else cout << "Error: Can't load model" << endl;
     
+    //Create themed background
+    for(int i = 0; i < 100; i++) {
+        //front
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(-700,700), ofRandom(-600, -500)));
+        //back
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(-700,700), ofRandom(500, 600)));
+        //left
+        stars.push_back(glm::vec3(ofRandom(-600,-500), ofRandom(-700,700), ofRandom(-700, 700)));
+        //right
+        stars.push_back(glm::vec3(ofRandom(500,600), ofRandom(-700,700), ofRandom(-700, 700)));
+        //top
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(-600,-500), ofRandom(-700, 700)));
+        //bottom
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(500,600), ofRandom(-700, 700)));
+    }
+
+    
 	if (!secondsText.load("Krabby_Patty.ttf", 15) ||
 		!velocityText.load("Krabby_Patty.ttf", 15) ||
 		!gameStateText.load("Krabby_Patty.ttf", 48)) {
@@ -123,12 +141,14 @@ void ofApp::update() {
 	pineapple->update();
     
     //Update forces
-    gravityForce->updateForce(pineapple, -3.72);
+    if(!landed) {
+        gravityForce->updateForce(pineapple, -3.72);
+        turbForce->updateForce(pineapple, 10);
+    }
 	
 	if (pineapple->thrustersOn) {
 		thrustForce->updateForce(pineapple, 5.0);
 	}
-    turbForce->updateForce(pineapple, 10);
     
 
     checkCollisions();
@@ -159,7 +179,10 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	ofBackground(ofColor::black);
+	ofBackground(ofColor::cornflowerBlue);
+    //background.resize(ofGetWindowWidth(), ofGetWindowHeight());
+    //background.draw(0,0);
+    
 
 	glDepthMask(false);
 	if (!bHide) gui.draw();
@@ -178,11 +201,21 @@ void ofApp::draw() {
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 	}
-    
-    
 
 	theCam->begin();
-    
+    for(int i = 0; i < stars.size(); i++) {
+        ofDrawSphere(stars[i], 3.0);
+        if(i%5==0)
+            ofSetColor(ofColor::darkGreen);
+        else if(i%4==0)
+            ofSetColor(ofColor::lightPink);
+        else if(i%3==0)
+            ofSetColor(ofColor::magenta);
+        else if(i%2==0)
+            ofSetColor(ofColor::lavender);
+        else
+            ofSetColor(ofColor::yellow);
+    }
 	ofPushMatrix();
 	//    ofSetColor(ofColor::purple);
 	//    Octree::drawBox(testBox);
@@ -550,8 +583,6 @@ bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 }
 
 
-
-
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
 
@@ -805,31 +836,35 @@ void ofApp::checkCollisions()
     for (int i = 0; i < nodeList.size(); i++)
     {
         glm::vec3 vel = pineapple->velocity;
-        if (vel.y >= 0)
-        {
-            break;
-        }
+//        if (vel.y >= 0)
+//        {
+//            break;
+//        }
         
         glm::vec3 vertex = octree.mesh.getVertex(nodeList.at(i).points.at(0));
         glm::vec3 pineapplePosition = pineapple->model.getPosition();
         float distance = glm::distance(pineapplePosition, vertex);
+        cout << "dist: " << distance << endl;
         
-        if (distance <= 1)
+        if (distance <= 2)
         {
             landed = true;
             
             glm::vec3 norm = octree.mesh.getNormal(nodeList.at(i).points.at(0));
             
-            vel *= 0.2;
+            //vel *= 0.9;
             
             glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
-            
+            cout << "i: " << impulseF << endl;
+            //cout << "g: " << gravityForce->g << endl;
+            cout << "forces: " << pineapple->forces << endl;
+            //cout << "turb: " << turbForce << endl;
             if (!iForce->applied)
             {
                 pineapple->forces += ofGetFrameRate() * impulseF;
                 iForce->applied = true;
             }
-	}
+        }
     }
     if (iForce->applied)
     {

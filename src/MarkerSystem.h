@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ofMain.h"
-#include "Marker.h"
+#include "TMarker.h"
 
 class MarkerSystem {
 public:
 	MarkerSystem() {
 		
 	}
-	void add(const Marker &);
+	void add(const TMarker &);
 	void draw();
-	vector<Marker> markers;
+	vector<TMarker> markers;
 };
