@@ -52,15 +52,20 @@ void Ship::integrate() {
 
 	//add damping
 	velocity *= 0.99;
-	angularVelocity *= 0.99;
+	angularVelocity *= 0.8;
 
 	forces = ofVec3f(0, 0, 0);
 }
 
 void Ship::setup() {
+	// set up exhaust
 	exhaust.sys->addForce(new GravityParticleForce(ofVec3f(0, -10, 0)));
 	exhaust.sys->addForce(new TurbulenceParticleForce(ofVec3f(-2, -1, -3), ofVec3f(1, 2, 5)));
 	exhaust.start();
+
+	// move to starting point
+	this->position = ofVec3f(65, 28, 40);
+	this->model.setPosition(65, 28, 40);
 }
 
 
@@ -72,8 +77,12 @@ void Ship::update() {
 }
 
 void Ship::draw() {
-	
 	// draw ship's exhaust
     if(thrustersOn)
         exhaust.draw();
+}
+
+void Ship::setPosition(const ofVec3f & p) {
+	this->position = p;
+	this->model.setPosition(p.x, p.y, p.z);
 }

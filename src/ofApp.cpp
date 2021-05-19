@@ -46,8 +46,6 @@ void ofApp::setup() {
     //Init forces
 
     iForce = new ImpulseForce();
-
-
     gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
     thrustForce = new ThrustForce(5.0);
     turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
@@ -71,6 +69,8 @@ void ofApp::setup() {
 
 	// Trajectory markers for testing xD
 	testMarkers = new MarkerSystem();
+	testMarkers->init();
+	numMarkersHit = 0;
 
 	// create sliders for testing
 	//
@@ -126,7 +126,8 @@ void ofApp::setup() {
     
 	if (!secondsText.load("Krabby_Patty.ttf", 15) ||
 		!velocityText.load("Krabby_Patty.ttf", 15) ||
-		!gameStateText.load("Krabby_Patty.ttf", 48)) {
+		!gameStateText.load("Krabby_Patty.ttf", 48) ||
+		!markersText.load("Krabby_Patty.ttf", 15)){
 		cout << "Error: Can't load font" << endl;
 	}
 
@@ -152,6 +153,7 @@ void ofApp::update() {
     
 
     checkCollisions();
+	checkFlightPath();
     
     //Onscreen text to help player
 //    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
@@ -166,7 +168,6 @@ void ofApp::update() {
 	if (pineapple->timeLeft <= 0) {;
 		gameStarted = false;
 		gameEnded = true;
-		//gameStateText.drawString("GAME OVER", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
 		pineapple->model.setPosition(0, 0, 0);
 		pineapple->velocity = ofVec3f(0, 0, 0);
 		pineapple->angularVelocity = 0;
@@ -200,6 +201,7 @@ void ofApp::draw() {
 		//Onscreen text to guide player
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
+		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
 	}
 
 	theCam->begin();
@@ -315,6 +317,7 @@ void ofApp::draw() {
 
 	// for testing
 	testMarkers->draw();
+
 
 	ofPopMatrix();
 	theCam->end();
@@ -844,7 +847,7 @@ void ofApp::checkCollisions()
         glm::vec3 vertex = octree.mesh.getVertex(nodeList.at(i).points.at(0));
         glm::vec3 pineapplePosition = pineapple->model.getPosition();
         float distance = glm::distance(pineapplePosition, vertex);
-        cout << "dist: " << distance << endl;
+        //cout << "dist: " << distance << endl;
         
         if (distance <= 2)
         {
@@ -855,9 +858,9 @@ void ofApp::checkCollisions()
             //vel *= 0.9;
             
             glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
-            cout << "i: " << impulseF << endl;
+            //cout << "i: " << impulseF << endl;
             //cout << "g: " << gravityForce->g << endl;
-            cout << "forces: " << pineapple->forces << endl;
+            //cout << "forces: " << pineapple->forces << endl;
             //cout << "turb: " << turbForce << endl;
             if (!iForce->applied)
             {
@@ -876,3 +879,19 @@ void ofApp::checkCollisions()
     }
 }
 
+void ofApp::checkFlightPath() {
+
+	glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
+	glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
+	Box pineappleBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+
+	for (int i = 0; i < testMarkers->markers.size(); i++) {
+		glm::vec3 marker = testMarkers->markers[i]->position;
+		bool hit = pineappleBounds.intersect(Ray(Vector3(marker.x, marker.y, marker.z), Vector3(marker.x, marker.y, marker.z)), 0, 10000);
+		
+		if (hit && !testMarkers->markers[i]->hit) {
+			numMarkersHit++;
+			testMarkers->markers[i]->hit = true; 
+		}
+	}
+}

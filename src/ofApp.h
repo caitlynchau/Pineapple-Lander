@@ -61,13 +61,15 @@ class ofApp : public ofBaseApp{
 		TreeNode selectedNode;
 		glm::vec3 mouseDownPos, mouseLastPos;
 		bool bInDrag = false;
-    vector<glm::vec3> stars;
+		vector<glm::vec3> stars;
 
         
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
 		ofTrueTypeFont gameStateText;
+		ofTrueTypeFont markersText; // temp?
         int seconds;
+		int numMarkersHit;
 		
 		ofxIntSlider numLevels;
 		ofxPanel gui;
@@ -106,6 +108,7 @@ class ofApp : public ofBaseApp{
         vector<TreeNode> nodeList;
         float time = 0;;
 
+		void checkFlightPath();
 
 		void debug();
 		MarkerSystem * testMarkers;

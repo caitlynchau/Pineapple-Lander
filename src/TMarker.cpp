@@ -1,13 +1,10 @@
 #include "TMarker.h"
 
-TMarker::TMarker() {
-	color = ofColor::hotPink;
-}
-
 void TMarker::setPosition(glm::vec3 p) {
 	position = p;
 }
 
 void TMarker::draw() {
-	ofDrawSphere(position, 2);
+	ofSetColor(color);
+	ofDrawSphere(position, 0.3);
 }
