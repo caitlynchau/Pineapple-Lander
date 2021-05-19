@@ -23,6 +23,7 @@ void ofApp::setup() {
 	bLanderLoaded = false;
 	bTerrainSelected = true;
 	//	ofSetWindowShape(1024, 768);
+    background.load("spongebobBG1.jpeg");
     
     launchCam.setPosition(glm::vec3(0,0,3));
     launchCam.lookAt(glm::vec3(0,0,-1));
@@ -67,7 +68,7 @@ void ofApp::setup() {
 	mouseIntersectPlane(ofVec3f(0, 0, 0), mainCam.getZAxis(), point);
 	
 	// Try loading model
-	if (lander.loadModel("lander.obj")) {
+	if (lander.loadModel("burger.obj")) {
 		lander.setScaleNormalization(false);
 		//        lander.setScale(.1, .1, .1);
 			//    lander.setPosition(point.x, point.y, point.z);
@@ -94,7 +95,22 @@ void ofApp::setup() {
         //
     }
     else cout << "Error: Can't load font" << endl;
-
+    
+    //Create themed background
+    for(int i = 0; i < 100; i++) {
+        //front
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(-700,700), ofRandom(-600, -500)));
+        //back
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(-700,700), ofRandom(500, 600)));
+        //left
+        stars.push_back(glm::vec3(ofRandom(-600,-500), ofRandom(-700,700), ofRandom(-700, 700)));
+        //right
+        stars.push_back(glm::vec3(ofRandom(500,600), ofRandom(-700,700), ofRandom(-700, 700)));
+        //top
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(-600,-500), ofRandom(-700, 700)));
+        //bottom
+        stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(500,600), ofRandom(-700, 700)));
+    }
 }
 
 //--------------------------------------------------------------
@@ -123,7 +139,10 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	ofBackground(ofColor::black);
+	ofBackground(ofColor::cornflowerBlue);
+    //background.resize(ofGetWindowWidth(), ofGetWindowHeight());
+    //background.draw(0,0);
+    
 
 	glDepthMask(false);
 	if (!bHide) gui.draw();
@@ -131,11 +150,24 @@ void ofApp::draw() {
     
     seconds = pineapple->timeLeft/1000;
     //Onscreen text to guide player
+    ofSetColor(ofColor::white);
     secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
     velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 
 	theCam->begin();
-    
+    for(int i = 0; i < stars.size(); i++) {
+        ofDrawSphere(stars[i], 3.0);
+        if(i%5==0)
+            ofSetColor(ofColor::darkGreen);
+        else if(i%4==0)
+            ofSetColor(ofColor::lightPink);
+        else if(i%3==0)
+            ofSetColor(ofColor::magenta);
+        else if(i%2==0)
+            ofSetColor(ofColor::lavender);
+        else
+            ofSetColor(ofColor::yellow);
+    }
 	ofPushMatrix();
 	//    ofSetColor(ofColor::purple);
 	//    Octree::drawBox(testBox);
@@ -472,8 +504,6 @@ bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 	}
 	return pointSelected;
 }
-
-
 
 
 //--------------------------------------------------------------

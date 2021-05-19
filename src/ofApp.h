@@ -50,6 +50,8 @@ class ofApp : public ofBaseApp{
         ThrustForce *thrustForce;
         TurbulenceForce *turbForce;
         
+        ofImage background;
+        vector<glm::vec3> stars;
         ofCamera *theCam; // Pointer to set current camera
 		ofEasyCam mainCam;
         ofCamera launchCam;
