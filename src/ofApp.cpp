@@ -39,9 +39,14 @@ void ofApp::setup() {
 	ofEnableDepthTest();
     
     //Init forces
+
+    iForce = new ImpulseForce();
+
+
     gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
-    //thrustForce = new ThrustForce(5.0);
+    thrustForce = new ThrustForce(5.0);
     turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+
 
 	// setup rudimentary lighting 
 	//
@@ -85,6 +90,7 @@ void ofApp::setup() {
 		pineapple = new Ship(lander);
 		pineapple->setup();
 		
+		
 	}
 	else cout << "Error: Can't load model" << endl;
     if(secondsText.load("Krabby_Patty.ttf", 15)) {
@@ -123,16 +129,25 @@ void ofApp::update() {
 	pineapple->update();
     
     //Update forces
-    gravityForce->updateForce(pineapple, -3);
-
-	// commented this out for now lololol
-	//thrustForce->updateForce(pineapple, 5);
+    gravityForce->updateForce(pineapple, -3.72);
+	
+	if (bSpacePressed || bKeyPressed) {
+		thrustForce->updateForce(pineapple, 5.0);
+	}
     turbForce->updateForce(pineapple, 10);
     
+
+    checkCollisions();
+    
+    //Onscreen text to help player
+//    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
+
+
     //Update camera views
     launchCam.lookAt(pineapple->model.getPosition());
     onboardCam.setPosition(pineapple->model.getPosition());
     onboardCam.lookAt(glm::vec3(0,0,0));
+
 }
 
 
@@ -263,7 +278,7 @@ void ofApp::draw() {
 	}
 
 	// draw ship's particle emitter
-	pineapple->draw();
+	if (bSpacePressed) 	pineapple->draw();
 
 	ofPopMatrix();
 	theCam->end();
@@ -328,9 +343,12 @@ void ofApp::keyPressed(int key) {
 		//bDisplayOctree = !bDisplayOctree;
         theCam = &onboardCam;
 		break;
-	case 'r':
-        mainCam.reset();
+  case 'r':
+    mainCam.reset();
 		pineapple->model.setPosition(0, 0, 0);
+		pineapple->velocity = ofVec3f(0, 0, 0);
+		pineapple->angularVelocity = 0;
+		pineapple->rotation = 0;
 		break;
 	case 's':
 		savePicture();
@@ -350,26 +368,39 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'z':
 		break;
+	case ',': // '<' key
+		pineapple->angularVelocity -= 0.5;
+		pineapple->axis = ofVec3f(0, 1, 0);
+		bKeyPressed = true;
+		break;
+	case '.': // '>' key
+		pineapple->angularVelocity += 0.5;
+		pineapple->axis = ofVec3f(0, 1, 0);
+		bKeyPressed = true;
+		break;
 	case OF_KEY_RIGHT:
 		pineapple->velocity.x += 2;
+		pineapple->axis = ofVec3f(1, 0, 0);
 		bKeyPressed = true;
 		break;
 	case OF_KEY_LEFT:
-		bKeyPressed = true;
 		pineapple->velocity.x -= 2;
+		pineapple->axis = ofVec3f(1, 0, 0);
+		bKeyPressed = true;
 		break;
 	case OF_KEY_UP:     
 		bKeyPressed = true;
 		pineapple->velocity.z -= 2;
+		pineapple->axis = ofVec3f(0, 0, 1);
 		break;
 	case OF_KEY_DOWN: 
-         // move this
-        bKeyPressed = true;
+    bKeyPressed = true;
 		pineapple->velocity.z += 2;
+		pineapple->axis = ofVec3f(0, 0, 1);
 		break;
 	case ' ':
-        thrust_start = ofGetElapsedTimeMillis();
-        pineapple->thrustersOn = true;
+    thrust_start = ofGetElapsedTimeMillis();
+    pineapple->thrustersOn = true;
 		bSpacePressed = true;
 		pineapple->velocity -= 2 * pineapple->heading();
 		break;
@@ -414,7 +445,11 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
-	case 'z':
+	case '>':
+		bKeyPressed = false;
+		break;
+	case '<':
+		bKeyPressed = false;
 		break;
 	case OF_KEY_RIGHT:
 		bKeyPressed = false;
@@ -433,7 +468,7 @@ void ofApp::keyReleased(int key) {
         pineapple->thrustersOn = false;
 		bSpacePressed = false;
 		pineapple->timeLeft -= (thrust_end - thrust_start);
-		cout << "time left: " << pineapple->timeLeft;
+		cout << "time left: " << pineapple->timeLeft << endl;
 		break;
 	default:
 		break;
@@ -736,4 +771,56 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 		return intersectPoint;
 	}
 	else return glm::vec3(0, 0, 0);
+}
+
+void ofApp::checkCollisions()
+{
+    nodeList.clear();                 // clear list of overlapped nodes
+
+    // box's min & max
+    glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
+    glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
+
+    // lander box
+    Box pineappleBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+    
+    // update nodeList
+    octree.nodeIntersect(pineappleBounds, octree.root, nodeList);
+    for (int i = 0; i < nodeList.size(); i++)
+    {
+        glm::vec3 vel = pineapple->velocity;
+        if (vel.y >= 0)
+        {
+            break;
+        }
+        
+        glm::vec3 vertex = octree.mesh.getVertex(nodeList.at(i).points.at(0));
+        glm::vec3 pineapplePosition = pineapple->model.getPosition();
+        float distance = glm::distance(pineapplePosition, vertex);
+        
+        if (distance <= 1)
+        {
+            landed = true;
+            
+            glm::vec3 norm = octree.mesh.getNormal(nodeList.at(i).points.at(0));
+            
+            vel *= 0.2;
+            
+            glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
+            
+            if (!iForce->applied)
+            {
+                pineapple->forces += ofGetFrameRate() * impulseF;
+                iForce->applied = true;
+            }
+    }
+    if (iForce->applied)
+    {
+        iForce->applied = false;
+    }
+    if (nodeList.size() < 1)
+    {
+        landed = false;
+    }
+}
 }

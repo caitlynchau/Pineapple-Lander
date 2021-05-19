@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ofMain.h"
@@ -46,16 +45,17 @@ class ofApp : public ofBaseApp{
         float thrust_end;
     
         //Forces
+
+        ImpulseForce *iForce;
         GravityForce *gravityForce;
         ThrustForce *thrustForce;
         TurbulenceForce *turbForce;
         
-        ofImage background;
-        vector<glm::vec3> stars;
         ofCamera *theCam; // Pointer to set current camera
 		ofEasyCam mainCam;
         ofCamera launchCam;
         ofCamera onboardCam;
+
 		ofxAssimpModelLoader mars, lander;
 		ofLight light;
 		Box boundingBox, landerBounds;
@@ -99,4 +99,9 @@ class ofApp : public ofBaseApp{
 		// Ship object
 		Ship *pineapple;
         
-};
+        void checkCollisions();
+        bool landed = false;
+        float restitution = 0.5;
+        vector<TreeNode> nodeList;
+        float time = 0;;
+        };
