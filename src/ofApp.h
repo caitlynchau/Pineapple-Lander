@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ofMain.h"
@@ -8,8 +7,6 @@
 #include <glm/gtx/intersect.hpp>
 #include "ship.h"
 #include "MarkerSystem.h"
-
-
 
 class ofApp : public ofBaseApp{
 
@@ -46,6 +43,7 @@ class ofApp : public ofBaseApp{
         float thrust_end;
     
         //Forces
+        ImpulseForce *iForce;
         GravityForce *gravityForce;
         ThrustForce *thrustForce;
         TurbulenceForce *turbForce;
@@ -100,7 +98,11 @@ class ofApp : public ofBaseApp{
 		// Ship object
 		Ship *pineapple;
 
-
+        void checkCollisions();
+        bool landed = false;
+        float restitution = 0.5;
+        vector<TreeNode> nodeList;
+        float time = 0;;
 
 
 		void debug();

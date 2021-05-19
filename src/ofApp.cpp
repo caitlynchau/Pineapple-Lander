@@ -43,9 +43,14 @@ void ofApp::setup() {
 	ofEnableDepthTest();
     
     //Init forces
+
+    iForce = new ImpulseForce();
+
+
     gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
     thrustForce = new ThrustForce(5.0);
     turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+
 
 	// setup rudimentary lighting 
 	//
@@ -125,11 +130,17 @@ void ofApp::update() {
 	}
     turbForce->updateForce(pineapple, 10);
     
+
+    checkCollisions();
+    
+    //Onscreen text to help player
+//    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
+
+
     //Update camera views
     launchCam.lookAt(pineapple->model.getPosition());
     onboardCam.setPosition(pineapple->model.getPosition());
     onboardCam.lookAt(glm::vec3(0,0,0));
-
 
 	// Game state
 	if (pineapple->timeLeft <= 0) {;
@@ -142,7 +153,6 @@ void ofApp::update() {
 		pineapple->rotation = 0;
 		pineapple->forces = ofVec3f(0, 0, 0);
 	}
-
 }
 
 
@@ -774,6 +784,59 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 	else return glm::vec3(0, 0, 0);
 }
 
+
 void ofApp::debug() {
 
 }
+
+void ofApp::checkCollisions()
+{
+    nodeList.clear();                 // clear list of overlapped nodes
+
+    // box's min & max
+    glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
+    glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
+
+    // lander box
+    Box pineappleBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
+    
+    // update nodeList
+    octree.nodeIntersect(pineappleBounds, octree.root, nodeList);
+    for (int i = 0; i < nodeList.size(); i++)
+    {
+        glm::vec3 vel = pineapple->velocity;
+        if (vel.y >= 0)
+        {
+            break;
+        }
+        
+        glm::vec3 vertex = octree.mesh.getVertex(nodeList.at(i).points.at(0));
+        glm::vec3 pineapplePosition = pineapple->model.getPosition();
+        float distance = glm::distance(pineapplePosition, vertex);
+        
+        if (distance <= 1)
+        {
+            landed = true;
+            
+            glm::vec3 norm = octree.mesh.getNormal(nodeList.at(i).points.at(0));
+            
+            vel *= 0.2;
+            
+            glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
+            
+            if (!iForce->applied)
+            {
+                pineapple->forces += ofGetFrameRate() * impulseF;
+                iForce->applied = true;
+            }
+    }
+    if (iForce->applied)
+    {
+        iForce->applied = false;
+    }
+    if (nodeList.size() < 1)
+    {
+        landed = false;
+    }
+}
+
