@@ -74,6 +74,7 @@ class ofApp : public ofBaseApp{
 		ofxIntSlider numLevels;
 		ofxPanel gui;
 
+		bool bZAxis;
         bool bAltKeyDown;
 		bool bCtrlKeyDown;
 		bool bWireframe;

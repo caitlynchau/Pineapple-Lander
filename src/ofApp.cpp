@@ -407,50 +407,59 @@ void ofApp::keyPressed(int key) {
 		toggleWireframeMode();
 		break;
 	case 'z':
+		bZAxis = true;
 		break;
 	case ',': // '<' key
-		thrust_start = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = true;
-		pineapple->angularVelocity -= 0.5;
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->angularVelocity -= 0.2;
 		pineapple->axis = ofVec3f(0, 1, 0);
 		break;
 	case '.': // '>' key
-		thrust_start = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = true;
-		pineapple->angularVelocity += 0.5;
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->angularVelocity += 0.2;
 		pineapple->axis = ofVec3f(0, 1, 0);
 		break;
 	case OF_KEY_RIGHT:
-		thrust_start = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = true;
-		pineapple->velocity.x += 2;
-		pineapple->axis = ofVec3f(1, 0, 0);
+		thrust_start = ofGetElapsedTimeMillis();
+		if (bZAxis) {
+			pineapple->velocity.z += 2;
+			pineapple->axis = ofVec3f(0, 0, 1);
+		}
+		else {
+			pineapple->velocity.x += 2;
+			pineapple->axis = ofVec3f(1, 0, 0);
+		}
 		break;
 	case OF_KEY_LEFT:
-		thrust_start = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = true;
-		pineapple->velocity.x -= 2;
-		pineapple->axis = ofVec3f(1, 0, 0);
+		thrust_start = ofGetElapsedTimeMillis();
+		if (bZAxis) {
+			pineapple->velocity.z -= 2;
+			pineapple->axis = ofVec3f(0, 0, 1);
+		}
+		else {
+			pineapple->velocity.x -= 2;
+			pineapple->axis = ofVec3f(1, 0, 0);
+		}
 		break;
 	case OF_KEY_UP:     
-		thrust_start = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = true;
-		pineapple->velocity.z -= 2;
-		pineapple->axis = ofVec3f(0, 0, 1);
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->velocity -= 2 * pineapple->heading();
 		break;
 	case OF_KEY_DOWN: 
-		thrust_start = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = true;
-		pineapple->velocity.z += 2;
-		pineapple->axis = ofVec3f(0, 0, 1);
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->velocity += 2 * pineapple->heading();
 		break;
 	case ' ':
 		if (!gameStarted && !gameEnded) { // new player
 			gameStarted = true;
 		}
-		thrust_start = ofGetElapsedTimeMillis();
-		pineapple->thrustersOn = true;
-		pineapple->velocity -= 2 * pineapple->heading();
+		
 		break;
 	case OF_KEY_ALT:
 		mainCam.enableMouseInput();
@@ -493,17 +502,20 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
+	case 'z':
+		bZAxis = false;
+		break;
 	case '>':
 	case '<':
 	case OF_KEY_RIGHT:
 	case OF_KEY_LEFT:
 	case OF_KEY_UP: 
-	case OF_KEY_DOWN:
-	case ' ': // switch case fall through
-        thrust_end = ofGetElapsedTimeMillis();
-        pineapple->thrustersOn = false;
-		pineapple->timeLeft -= (thrust_end - thrust_start) * 5; // im trying to make the time go by faster
+	case OF_KEY_DOWN: // switch case fall through
+		thrust_end = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = false;
+		pineapple->timeLeft -= (thrust_end - thrust_start) * 3; //lol im trying to make the time go by faster
 		cout << "time left: " << pineapple->timeLeft << endl;
+	case ' ': 
 		break;
 	default:
 		break;
