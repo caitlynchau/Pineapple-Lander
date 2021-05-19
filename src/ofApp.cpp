@@ -829,6 +829,7 @@ void ofApp::checkCollisions()
                 pineapple->forces += ofGetFrameRate() * impulseF;
                 iForce->applied = true;
             }
+	}
     }
     if (iForce->applied)
     {
