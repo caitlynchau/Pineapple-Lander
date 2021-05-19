@@ -8,6 +8,8 @@
 #include "ship.h"
 #include "MarkerSystem.h"
 
+typedef enum { Landed, Crashed, Strayed, Flying } State;
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -61,17 +63,20 @@ class ofApp : public ofBaseApp{
 		TreeNode selectedNode;
 		glm::vec3 mouseDownPos, mouseLastPos;
 		bool bInDrag = false;
-    vector<glm::vec3> stars;
+		vector<glm::vec3> stars;
 
         
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
 		ofTrueTypeFont gameStateText;
+		ofTrueTypeFont markersText; // temporary ?
         int seconds;
+		int numMarkersHit;
 		
 		ofxIntSlider numLevels;
 		ofxPanel gui;
 
+		bool bZAxis;
         bool bAltKeyDown;
 		bool bCtrlKeyDown;
 		bool bWireframe;
@@ -83,7 +88,6 @@ class ofApp : public ofBaseApp{
 		bool bDisplayOctree = false;
 		bool bDisplayBBoxes = false;
         bool bKeyPressed = false;
-		
 		bool bLanderLoaded;
 		bool bTerrainSelected;
 
@@ -100,14 +104,16 @@ class ofApp : public ofBaseApp{
 		// Ship object
 		Ship *pineapple;
 
+		void checkFlightPath();
         void checkCollisions();
-        bool landed = false;
+		State gameState;
+
         float restitution = 0.5;
         vector<TreeNode> nodeList;
         float time = 0;;
 
 
-		void debug();
+		void debug(); // delete this lolol
 		MarkerSystem * testMarkers;
         
 };

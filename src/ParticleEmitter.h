@@ -23,7 +23,7 @@ public:
 	void setEmitterType(EmitterType t) { type = t; }
 	void update();
 
-	// from TransformObject
+	// from TransformObject maybe delete this lol
 	void setPosition(const ofVec3f &);
 	ofVec3f position, scale;
 	float	rotation;

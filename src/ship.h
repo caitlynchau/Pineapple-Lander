@@ -41,7 +41,7 @@ public:
 		return glm::normalize(h);
 	}
 
-	// from TransformObject
+	// from TransformObject I think we can delete this
 	void setPosition(const ofVec3f &);
 	ofVec3f position, scale;
 	//float	rotation;

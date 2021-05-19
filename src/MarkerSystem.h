@@ -5,10 +5,8 @@
 
 class MarkerSystem {
 public:
-	MarkerSystem() {
-		
-	}
-	void add(const TMarker &);
+	MarkerSystem() {}
+	void init();
 	void draw();
-	vector<TMarker> markers;
+	vector<TMarker*> markers;
 };
