@@ -7,7 +7,7 @@
 #include "Octree.h"
 #include <glm/gtx/intersect.hpp>
 #include "ship.h"
-
+#include "MarkerSystem.h"
 
 
 
@@ -104,5 +104,6 @@ class ofApp : public ofBaseApp{
 
 
 		void debug();
+		MarkerSystem * testMarkers;
         
 };

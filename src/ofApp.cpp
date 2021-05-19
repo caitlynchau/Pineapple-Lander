@@ -12,10 +12,15 @@
 #include "ofApp.h"
 #include "Util.h"
 
+
+// remove later lol
+#include "Marker.h"
+
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
 //
 void ofApp::setup() {
+
 	bWireframe = false;
 	bDisplayPoints = false;
 	bAltKeyDown = false;
@@ -57,6 +62,10 @@ void ofApp::setup() {
 	gameStarted = false; 
 	gameEnded = false;
 
+
+	// Trajectory markers for testing xD
+	testMarkers = new MarkerSystem();
+
 	// create sliders for testing
 	//
 	gui.setup();
@@ -88,7 +97,6 @@ void ofApp::setup() {
 		// Create new ship
 		pineapple = new Ship(lander);
 		pineapple->setup();
-		
 		
 	}
 	else cout << "Error: Can't load model" << endl;
@@ -262,6 +270,8 @@ void ofApp::draw() {
 	// draw ship's particle emitter
 	if (pineapple->thrustersOn) 	pineapple->draw();
 
+	// for testing
+	testMarkers->draw();
 
 	ofPopMatrix();
 	theCam->end();
@@ -461,11 +471,21 @@ void ofApp::keyReleased(int key) {
 void ofApp::mouseMoved(int x, int y) {
 
 
+
 }
 
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
+
+	// for testing: draw markers for trajectory
+	/*
+	glm::vec3 p = theCam->screenToWorld(glm::vec3(x, y, 0)); // convert to 3d
+	cout << "mouse pressed " << p << endl;
+	Marker m;
+	m.setPosition(p);
+	testMarkers->add(m);
+	*/
 
 	// if moving camera, don't allow mouse interaction
 	//
