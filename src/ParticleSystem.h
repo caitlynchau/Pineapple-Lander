@@ -9,6 +9,8 @@
 //
 class ParticleForce {
 public:
+    bool applyOnce = false;
+    bool applied = false;
 	virtual void updateForce(Particle *) = 0;
 };
 
@@ -18,6 +20,7 @@ public:
 	void addForce(ParticleForce *);
 	void remove(int);
 	void update();
+    void reset();
 	int removeNear(const ofVec3f & point, float dist);
 	void draw();
 	vector<Particle> particles;
