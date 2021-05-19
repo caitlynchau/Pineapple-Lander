@@ -14,12 +14,9 @@ ThrustForce::ThrustForce(float magnitude) {
 }
 
 void ThrustForce::updateForce(Ship* s, float t) {
-
 	s->forces.x += s->axis.x * t;
     s->forces.y += s->axis.y * t;
 	s->forces.z += s->axis.z * t;
-
-	cout << "update force " << s->forces << endl;
 }
 TurbulenceForce::TurbulenceForce(const ofVec3f &min, const ofVec3f &max) {
 	tmin = min;

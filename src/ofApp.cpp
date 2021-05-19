@@ -12,10 +12,15 @@
 #include "ofApp.h"
 #include "Util.h"
 
+
+// remove later lol
+#include "Marker.h"
+
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
 //
 void ofApp::setup() {
+
 	bWireframe = false;
 	bDisplayPoints = false;
 	bAltKeyDown = false;
@@ -57,6 +62,15 @@ void ofApp::setup() {
 		cout << "Load failed" << endl;
 	mars.setScaleNormalization(false);
 
+
+	// game variables
+	gameStarted = false; 
+	gameEnded = false;
+
+
+	// Trajectory markers for testing xD
+	testMarkers = new MarkerSystem();
+
 	// create sliders for testing
 	//
 	gui.setup();
@@ -89,17 +103,14 @@ void ofApp::setup() {
 		pineapple = new Ship(lander);
 		pineapple->setup();
 		
-		
 	}
 	else cout << "Error: Can't load model" << endl;
-    if(secondsText.load("Krabby_Patty.ttf", 15)) {
-        //
-    }
-    else cout << "Error: Can't load font" << endl;
-    if(velocityText.load("Krabby_Patty.ttf", 15)) {
-        //
-    }
-    else cout << "Error: Can't load font" << endl;
+    
+	if (!secondsText.load("Krabby_Patty.ttf", 15) ||
+		!velocityText.load("Krabby_Patty.ttf", 15) ||
+		!gameStateText.load("Krabby_Patty.ttf", 48)) {
+		cout << "Error: Can't load font" << endl;
+	}
 
 }
 
@@ -107,7 +118,6 @@ void ofApp::setup() {
 // incrementally update scene (animation)
 //
 void ofApp::update() {
-	//saveFile();
 
 	pineapple->integrate(); // should we move this to ship's update?
 	pineapple->update();
@@ -115,7 +125,7 @@ void ofApp::update() {
     //Update forces
     gravityForce->updateForce(pineapple, -3.72);
 	
-	if (bSpacePressed || bKeyPressed) {
+	if (pineapple->thrustersOn) {
 		thrustForce->updateForce(pineapple, 5.0);
 	}
     turbForce->updateForce(pineapple, 10);
@@ -132,6 +142,17 @@ void ofApp::update() {
     onboardCam.setPosition(pineapple->model.getPosition());
     onboardCam.lookAt(glm::vec3(0,0,0));
 
+	// Game state
+	if (pineapple->timeLeft <= 0) {;
+		gameStarted = false;
+		gameEnded = true;
+		//gameStateText.drawString("GAME OVER", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+		pineapple->model.setPosition(0, 0, 0);
+		pineapple->velocity = ofVec3f(0, 0, 0);
+		pineapple->angularVelocity = 0;
+		pineapple->rotation = 0;
+		pineapple->forces = ofVec3f(0, 0, 0);
+	}
 }
 
 
@@ -143,11 +164,22 @@ void ofApp::draw() {
 	glDepthMask(false);
 	if (!bHide) gui.draw();
 	glDepthMask(true);
+
+
+	if (!gameStarted && !gameEnded) { // new game
+		gameStateText.drawString("Press space to start", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+	}
+	if (!gameStarted && gameEnded) { // game over
+		gameStateText.drawString("Game over", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+	}
+	else if (gameStarted && !gameEnded) { // game in progress
+		seconds = pineapple->timeLeft / 1000;
+		//Onscreen text to guide player
+		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
+		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
+	}
     
-    seconds = pineapple->timeLeft/1000;
-    //Onscreen text to guide player
-    secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
-    velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
+    
 
 	theCam->begin();
     
@@ -246,7 +278,10 @@ void ofApp::draw() {
 	}
 
 	// draw ship's particle emitter
-	if (bSpacePressed) 	pineapple->draw();
+	if (pineapple->thrustersOn) 	pineapple->draw();
+
+	// for testing
+	testMarkers->draw();
 
 	ofPopMatrix();
 	theCam->end();
@@ -317,6 +352,7 @@ void ofApp::keyPressed(int key) {
 		pineapple->velocity = ofVec3f(0, 0, 0);
 		pineapple->angularVelocity = 0;
 		pineapple->rotation = 0;
+		pineapple->forces = ofVec3f(0, 0, 0);
 		break;
 	case 's':
 		savePicture();
@@ -337,39 +373,47 @@ void ofApp::keyPressed(int key) {
 	case 'z':
 		break;
 	case ',': // '<' key
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->angularVelocity -= 0.5;
 		pineapple->axis = ofVec3f(0, 1, 0);
-		bKeyPressed = true;
 		break;
 	case '.': // '>' key
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->angularVelocity += 0.5;
 		pineapple->axis = ofVec3f(0, 1, 0);
-		bKeyPressed = true;
 		break;
 	case OF_KEY_RIGHT:
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->velocity.x += 2;
 		pineapple->axis = ofVec3f(1, 0, 0);
-		bKeyPressed = true;
 		break;
 	case OF_KEY_LEFT:
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->velocity.x -= 2;
 		pineapple->axis = ofVec3f(1, 0, 0);
-		bKeyPressed = true;
 		break;
 	case OF_KEY_UP:     
-		bKeyPressed = true;
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->velocity.z -= 2;
 		pineapple->axis = ofVec3f(0, 0, 1);
 		break;
 	case OF_KEY_DOWN: 
-    bKeyPressed = true;
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->velocity.z += 2;
 		pineapple->axis = ofVec3f(0, 0, 1);
 		break;
 	case ' ':
-    thrust_start = ofGetElapsedTimeMillis();
-    pineapple->thrustersOn = true;
-		bSpacePressed = true;
+		if (!gameStarted && !gameEnded) { // new player
+			gameStarted = true;
+		}
+		thrust_start = ofGetElapsedTimeMillis();
+		pineapple->thrustersOn = true;
 		pineapple->velocity -= 2 * pineapple->heading();
 		break;
 	case OF_KEY_ALT:
@@ -414,28 +458,15 @@ void ofApp::keyReleased(int key) {
 	case OF_KEY_SHIFT:
 		break;
 	case '>':
-		bKeyPressed = false;
-		break;
 	case '<':
-		bKeyPressed = false;
-		break;
 	case OF_KEY_RIGHT:
-		bKeyPressed = false;
-		break;
 	case OF_KEY_LEFT:
-		bKeyPressed = false;
-		break;
 	case OF_KEY_UP: 
-		bKeyPressed = false;
-		break;
 	case OF_KEY_DOWN:
-		bKeyPressed = false;
-		break;
-	case ' ': // spacebar
+	case ' ': // switch case fall through
         thrust_end = ofGetElapsedTimeMillis();
         pineapple->thrustersOn = false;
-		bSpacePressed = false;
-		pineapple->timeLeft -= (thrust_end - thrust_start);
+		pineapple->timeLeft -= (thrust_end - thrust_start) * 5; // im trying to make the time go by faster
 		cout << "time left: " << pineapple->timeLeft << endl;
 		break;
 	default:
@@ -450,11 +481,21 @@ void ofApp::keyReleased(int key) {
 void ofApp::mouseMoved(int x, int y) {
 
 
+
 }
 
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
+
+	// for testing: draw markers for trajectory
+	/*
+	glm::vec3 p = theCam->screenToWorld(glm::vec3(x, y, 0)); // convert to 3d
+	cout << "mouse pressed " << p << endl;
+	Marker m;
+	m.setPosition(p);
+	testMarkers->add(m);
+	*/
 
 	// if moving camera, don't allow mouse interaction
 	//
@@ -743,6 +784,11 @@ glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 	else return glm::vec3(0, 0, 0);
 }
 
+
+void ofApp::debug() {
+
+}
+
 void ofApp::checkCollisions()
 {
     nodeList.clear();                 // clear list of overlapped nodes
@@ -793,4 +839,4 @@ void ofApp::checkCollisions()
         landed = false;
     }
 }
-}
+

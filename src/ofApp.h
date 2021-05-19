@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "ofMain.h"
@@ -7,9 +6,7 @@
 #include "Octree.h"
 #include <glm/gtx/intersect.hpp>
 #include "ship.h"
-
-
-
+#include "MarkerSystem.h"
 
 class ofApp : public ofBaseApp{
 
@@ -46,7 +43,6 @@ class ofApp : public ofBaseApp{
         float thrust_end;
     
         //Forces
-
         ImpulseForce *iForce;
         GravityForce *gravityForce;
         ThrustForce *thrustForce;
@@ -56,7 +52,6 @@ class ofApp : public ofBaseApp{
 		ofEasyCam mainCam;
         ofCamera launchCam;
         ofCamera onboardCam;
-
 		ofxAssimpModelLoader mars, lander;
 		ofLight light;
 		Box boundingBox, landerBounds;
@@ -69,12 +64,12 @@ class ofApp : public ofBaseApp{
         
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
+		ofTrueTypeFont gameStateText;
         int seconds;
 		
-    ofxIntSlider numLevels;
+		ofxIntSlider numLevels;
 		ofxPanel gui;
 
-		bool bSpacePressed = false;
         bool bAltKeyDown;
 		bool bCtrlKeyDown;
 		bool bWireframe;
@@ -89,6 +84,9 @@ class ofApp : public ofBaseApp{
 		
 		bool bLanderLoaded;
 		bool bTerrainSelected;
+
+		bool gameStarted;
+		bool gameEnded;
 	
 		ofVec3f selectedPoint;
 		ofVec3f intersectPoint;
@@ -99,10 +97,15 @@ class ofApp : public ofBaseApp{
         
 		// Ship object
 		Ship *pineapple;
-        
+
         void checkCollisions();
         bool landed = false;
         float restitution = 0.5;
         vector<TreeNode> nodeList;
         float time = 0;;
-        };
+
+
+		void debug();
+		MarkerSystem * testMarkers;
+        
+};
