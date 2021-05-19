@@ -11,6 +11,11 @@ void ParticleSystem::addForce(ParticleForce *f) {
 void ParticleSystem::remove(int i) {
 	particles.erase(particles.begin() + i);
 }
+void ParticleSystem::reset() {
+    for (int i = 0; i < forces.size(); i++) {
+        forces[i]->applied = false;
+    }
+}
 
 void ParticleSystem::update() {
 	// check if empty and just return

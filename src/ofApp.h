@@ -39,6 +39,7 @@ class ofApp : public ofBaseApp{
 		bool mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point);
 		bool raySelectWithOctree(ofVec3f &pointRet);
         glm::vec3 getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
+        void explode(ofVec3f p);
 
         //Time
         float thrust_start;
@@ -65,7 +66,7 @@ class ofApp : public ofBaseApp{
 		bool bInDrag = false;
 		vector<glm::vec3> stars;
 
-        
+        ofImage background;
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
 		ofTrueTypeFont gameStateText;
@@ -107,6 +108,8 @@ class ofApp : public ofBaseApp{
 		void checkFlightPath();
         void checkCollisions();
 		State gameState;
+        ParticleEmitter* explosion;
+
 
         float restitution = 0.5;
         vector<TreeNode> nodeList;

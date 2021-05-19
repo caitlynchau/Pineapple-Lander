@@ -20,6 +20,9 @@
 // setup scene, lighting, state and load geometry
 //
 void ofApp::setup() {
+    if(background.load("spongebobBG2.jpeg"))
+          cout << "background loaded" << endl;
+       else cout << "background load failed" << endl;
 
 	bWireframe = false;
 	bDisplayPoints = false;
@@ -50,11 +53,15 @@ void ofApp::setup() {
     thrustForce = new ThrustForce(5.0);
     turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
 
-
+    
+    
 	// setup rudimentary lighting 
 	//
 	initLightingAndMaterials();
 
+   
+    
+    background.resize(736*2, 368*2);
 	if (mars.loadModel("mars-low-5x-v2.obj"))
 		cout << "Model loaded" << endl;
 	else
@@ -91,7 +98,7 @@ void ofApp::setup() {
 		lander.setScaleNormalization(false);
 		//        lander.setScale(.1, .1, .1);
 			//    lander.setPosition(point.x, point.y, point.z);
-		lander.setPosition(1, 1, 0);
+		lander.setPosition(0, -1, 0);
 
 		bLanderLoaded = true;
 		for (int i = 0; i < lander.getMeshCount(); i++) {
@@ -106,6 +113,15 @@ void ofApp::setup() {
 		
 	}
 	else cout << "Error: Can't load model" << endl;
+    
+    explosion = new ParticleEmitter(new ParticleSystem());
+    explosion->setOneShot(true);
+    explosion->setEmitterType(RadialEmitter);
+    explosion->setLifespan(10);
+    explosion->setRate(5);
+    explosion->setParticleRadius(5);
+    explosion->setGroupSize(56);
+    explosion->setVelocity(ofVec3f(70, 70, 70));
     
     //Create themed background
     for(int i = 0; i < 100; i++) {
@@ -141,6 +157,8 @@ void ofApp::update() {
 	pineapple->integrate(); // should we move this to ship's update?
 	pineapple->update();
     
+    explosion->update();
+
     //Update forces
     if(gameState == Flying) { // not landed, not crashed
         gravityForce->updateForce(pineapple, -3.72);
@@ -150,12 +168,10 @@ void ofApp::update() {
 		// explosion
 		cout << "CRASHED" << endl;
 		// delete ship? TO BE CONTINUED
-		//ParticleEmitter explosion;
 		//explosion.sys->addForce()
-		
 	}
 	else if (gameState == Landed) { // landed successfully
-		cout << "LANDED" << endl;
+		//cout << "LANDED" << endl;
 	}
 	
 	if (pineapple->thrustersOn) {
@@ -210,14 +226,16 @@ void ofApp::draw() {
 	else if (gameStarted && !gameEnded) { // game in progress
 		seconds = pineapple->timeLeft / 1000;
 		//Onscreen text to guide player
+        ofSetColor(ofColor::white);
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
 	}
 
 	theCam->begin();
+    background.draw(-600,-300,-600);
     for(int i = 0; i < stars.size(); i++) {
-        ofDrawSphere(stars[i], 3.0);
+        ofDrawSphere(stars[i], 1.5);
         if(i%5==0)
             ofSetColor(ofColor::darkGreen);
         else if(i%4==0)
@@ -232,6 +250,8 @@ void ofApp::draw() {
 	ofPushMatrix();
 	//    ofSetColor(ofColor::purple);
 	//    Octree::drawBox(testBox);
+    //if(gameState == Crashed)
+    explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
 		ofSetColor(ofColor::slateGray);
@@ -286,14 +306,14 @@ void ofApp::draw() {
 
 	if (bDisplayPoints) {                // display points as an option    
 		glPointSize(3);
-		ofSetColor(ofColor::green);
+		//ofSetColor(ofColor::green);
 		mars.drawVertices();
 	}
 
 	// highlight selected point (draw sphere around selected point)
 	//
 	if (bPointSelected) {
-		ofSetColor(ofColor::blue);
+		//ofSetColor(ofColor::blue);
 		ofDrawSphere(selectedPoint, .1);
 	}
 
@@ -310,7 +330,7 @@ void ofApp::draw() {
 	}
 	else if (bDisplayOctree) {
 		ofNoFill();
-		ofSetColor(ofColor::white);
+		//ofSetColor(ofColor::white);
 		octree.draw(numLevels, 0);
 	}
 
@@ -319,7 +339,7 @@ void ofApp::draw() {
 	if (pointSelected) {
 		ofVec3f p = octree.mesh.getVertex(selectedNode.points[0]);
 		ofVec3f d = p - theCam->getPosition();
-		ofSetColor(ofColor::lightGreen);
+		//ofSetColor(ofColor::lightGreen);
 		ofDrawSphere(p, .02 * d.length());
 	}
 
@@ -846,6 +866,12 @@ void ofApp::debug() {
 
 }
 
+void ofApp::explode(ofVec3f p) {
+    explosion->setPosition(p);
+    explosion->sys->reset();
+    explosion->start();
+}
+
 void ofApp::checkCollisions()
 {
     nodeList.clear();                 // clear list of overlapped nodes
@@ -889,8 +915,12 @@ void ofApp::checkCollisions()
                 iForce->applied = true;
 
 				// if the incoming velocity is greater than 15(?), then crash
-				if (abs(vel.y) > 15) {
+				if (vel.y < -15) {
 					gameState = Crashed;
+                    //explosion->setPosition(vertex);
+                    explode(vertex);
+                    //explosion.start();
+                    break;
 				}
 				else {
 					gameState = Landed;
