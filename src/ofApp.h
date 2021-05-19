@@ -8,6 +8,8 @@
 #include "ship.h"
 #include "MarkerSystem.h"
 
+typedef enum { Landed, Crashed, Strayed, Flying } State;
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -67,7 +69,7 @@ class ofApp : public ofBaseApp{
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
 		ofTrueTypeFont gameStateText;
-		ofTrueTypeFont markersText; // temp?
+		ofTrueTypeFont markersText; // temporary ?
         int seconds;
 		int numMarkersHit;
 		
@@ -86,7 +88,6 @@ class ofApp : public ofBaseApp{
 		bool bDisplayOctree = false;
 		bool bDisplayBBoxes = false;
         bool bKeyPressed = false;
-		
 		bool bLanderLoaded;
 		bool bTerrainSelected;
 
@@ -103,15 +104,16 @@ class ofApp : public ofBaseApp{
 		// Ship object
 		Ship *pineapple;
 
+		void checkFlightPath();
         void checkCollisions();
-        bool landed = false;
+		State gameState;
+
         float restitution = 0.5;
         vector<TreeNode> nodeList;
         float time = 0;;
 
-		void checkFlightPath();
 
-		void debug();
+		void debug(); // delete this lolol
 		MarkerSystem * testMarkers;
         
 };

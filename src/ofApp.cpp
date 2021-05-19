@@ -142,10 +142,21 @@ void ofApp::update() {
 	pineapple->update();
     
     //Update forces
-    if(!landed) {
+    if(gameState == Flying) { // not landed, not crashed
         gravityForce->updateForce(pineapple, -3.72);
         turbForce->updateForce(pineapple, 10);
     }
+	else if (gameState == Crashed) { // crashed
+		// explosion
+		cout << "CRASHED" << endl;
+		// delete ship? TO BE CONTINUED
+		//ParticleEmitter explosion;
+		//explosion.sys->addForce()
+		
+	}
+	else if (gameState == Landed) { // landed successfully
+		cout << "LANDED" << endl;
+	}
 	
 	if (pineapple->thrustersOn) {
 		thrustForce->updateForce(pineapple, 5.0);
@@ -315,7 +326,7 @@ void ofApp::draw() {
 	// draw ship's particle emitter
 	if (pineapple->thrustersOn) 	pineapple->draw();
 
-	// for testing
+	// for testing lol
 	testMarkers->draw();
 
 
@@ -863,12 +874,10 @@ void ofApp::checkCollisions()
         
         if (distance <= 2)
         {
-            landed = true;
             
             glm::vec3 norm = octree.mesh.getNormal(nodeList.at(i).points.at(0));
             
             //vel *= 0.9;
-            
             glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
             //cout << "i: " << impulseF << endl;
             //cout << "g: " << gravityForce->g << endl;
@@ -878,16 +887,26 @@ void ofApp::checkCollisions()
             {
                 pineapple->forces += ofGetFrameRate() * impulseF;
                 iForce->applied = true;
+
+				// if the incoming velocity is greater than 15(?), then crash
+				if (abs(vel.y) > 15) {
+					gameState = Crashed;
+				}
+				else {
+					gameState = Landed;
+				}
             }
         }
     }
-    if (iForce->applied)
+    if (iForce->applied) // reset the impulse force
     {
         iForce->applied = false;
     }
-    if (nodeList.size() < 1)
+
+    if (nodeList.size() == 0)
     {
-        landed = false;
+        //landed = false; // im not sure what dis means,, is game over?
+		gameState = Flying;
     }
 }
 
