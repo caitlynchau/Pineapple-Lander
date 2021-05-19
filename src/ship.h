@@ -53,6 +53,7 @@ public:
     virtual void updateForce(Ship* s, float t) = 0;
 };
 class GravityForce : public Force {
+public:
     ofVec3f g;
 public:
     GravityForce(const ofVec3f &g);
@@ -69,4 +70,22 @@ class TurbulenceForce : public Force {
 public:
     TurbulenceForce(const ofVec3f & min, const ofVec3f &max);
     void updateForce(Ship* s, float t);
+};
+
+class ImpulseForce : public Force {
+public:
+    ImpulseForce() {
+        applyOnce = true;
+        applied = true;
+        force = ofVec3f(0, 0, 0);
+    }
+    void apply(const ofVec3f f) {
+        applied = false;
+        force = f;
+    }
+    void updateForce(Ship *particle, float t) {
+        particle->forces += force;
+    }
+
+    ofVec3f force;
 };

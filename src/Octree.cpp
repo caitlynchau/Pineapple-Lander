@@ -227,6 +227,30 @@ bool Octree::intersect(const Box &box, TreeNode & node, vector<Box> & boxListRtn
 	return intersects;
 }
 
+bool Octree::nodeIntersect(const Box &box, TreeNode & node, vector<TreeNode> & nodeList)
+{
+    bool intersects = false;
+    // check if lander and octree box overlap
+    if(node.box.overlap(box)) {
+        //if node has no children, add to box list return
+        if(node.children.size() == 0) {
+            nodeList.push_back(node);
+            // returnedNode = node;
+            intersects = true;
+        }
+        //if node has children
+        else {
+            for (int i = 0; i < node.children.size(); i++) {
+                //check for intersection between lander and every child node's box
+                if(nodeIntersect(box, node.children[i], nodeList)) {
+                    intersects = true;
+                }
+            }
+        }
+    }
+    return intersects;
+}
+
 void Octree::draw(TreeNode & node, int numLevels, int level) {
     if(level >= numLevels)
         return;

@@ -49,6 +49,8 @@ class ofApp : public ofBaseApp{
         GravityForce *g;
         ThrustForce *tf;
         TurbulenceForce *turb;
+        ImpulseForce *iForce;
+
 
 		ofEasyCam cam;
 		ofxAssimpModelLoader mars, lander;
@@ -91,4 +93,9 @@ class ofApp : public ofBaseApp{
 		// Ship object
 		Ship *pineapple;
         
-};
+        void checkCollisions();
+        bool landed = false;
+        float restitution = 0.5;
+        vector<TreeNode> nodeList;
+        float time = 0;;
+        };
