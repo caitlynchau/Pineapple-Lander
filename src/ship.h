@@ -1,5 +1,7 @@
 #pragma once
 #include "ofMain.h"
+#include "ParticleEmitter.h"
+#include "Particle.h"
 #include "ofxAssimpModelLoader.h"
 
 class Ship {
@@ -11,26 +13,25 @@ public:
 
 	// Fuel
 	float timeLeft = 120000;
-    bool thrustersOn;
-    
+    bool thrustersOn = false;
 
 	//Physics variables
 	ofVec3f velocity = ofVec3f(0, 0, 0);
 	ofVec3f acceleration;
 	ofVec3f forces = ofVec3f(0, 0, 0);
+	ofVec3f axis = ofVec3f(0, 0, 0);
 	float dt = 1.0 / 60.0;
 	float angularVelocity = 0;
 	float mass = 1.0;
 	float damping = 0.99;
 	bool rotate;
 	float rotation = 0.0;
+	
 
 	// Particle emitter for "fuel exhaust"
-	// TO DO
+	ParticleEmitter exhaust;
 
 	ofxAssimpModelLoader model;
-
-	void integrate();
 
 	glm::vec3 heading() {
 		glm::vec3 initialHeading = glm::vec3(0, -1, 0);
@@ -40,10 +41,22 @@ public:
 		return glm::normalize(h);
 	}
 
+	// from TransformObject
+	void setPosition(const ofVec3f &);
+	ofVec3f position, scale;
+	//float	rotation;
+	bool	bSelected;
+
+
 	// function prototypes
 	void update();
 	void setup();
+	void draw();
+	void integrate();
 };
+
+
+
 // move these into a separate file later lol
 class Force {
 protected:
@@ -52,6 +65,7 @@ public:
     bool applied = false;
     virtual void updateForce(Ship* s, float t) = 0;
 };
+
 class GravityForce : public Force {
 public:
     ofVec3f g;
@@ -59,12 +73,14 @@ public:
     GravityForce(const ofVec3f &g);
     void updateForce(Ship* s, float t);
 };
+
 class ThrustForce : public Force {
     float magnitude;
 public:
     ThrustForce(float magnitude);
     void updateForce(Ship* s, float t);
 };
+
 class TurbulenceForce : public Force {
     ofVec3f tmin, tmax;
 public:

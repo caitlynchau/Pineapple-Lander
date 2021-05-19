@@ -23,19 +23,28 @@ void ofApp::setup() {
 	bLanderLoaded = false;
 	bTerrainSelected = true;
 	//	ofSetWindowShape(1024, 768);
-	cam.setDistance(25);
-	cam.setNearClip(.1);
-	cam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
+    
+    launchCam.setPosition(glm::vec3(0,0,3));
+    launchCam.lookAt(glm::vec3(0,0,-1));
+    
+    theCam = &mainCam;
+    
+    mainCam.setDistance(25);
+    mainCam.setNearClip(.1);
+    mainCam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
 	ofSetVerticalSync(true);
-	cam.disableMouseInput();
+    mainCam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
     
     //Init forces
-    g = new GravityForce(ofVec3f(0, -3.72, 0));
-    tf = new ThrustForce(5.0);
-    turb = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
+
     iForce = new ImpulseForce();
+
+
+    gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
+    thrustForce = new ThrustForce(5.0);
+    turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
 
 
 	// setup rudimentary lighting 
@@ -60,7 +69,7 @@ void ofApp::setup() {
 
 	cout << "Number of Verts: " << mars.getMesh(0).getNumVertices() << endl;
 	ofVec3f point;
-	mouseIntersectPlane(ofVec3f(0, 0, 0), cam.getZAxis(), point);
+	mouseIntersectPlane(ofVec3f(0, 0, 0), mainCam.getZAxis(), point);
 	
 	// Try loading model
 	if (lander.loadModel("lander.obj")) {
@@ -78,10 +87,19 @@ void ofApp::setup() {
 
 		// Create new ship
 		pineapple = new Ship(lander);
+		pineapple->setup();
+		
 		
 	}
 	else cout << "Error: Can't load model" << endl;
-
+    if(secondsText.load("Krabby_Patty.ttf", 15)) {
+        //
+    }
+    else cout << "Error: Can't load font" << endl;
+    if(velocityText.load("Krabby_Patty.ttf", 15)) {
+        //
+    }
+    else cout << "Error: Can't load font" << endl;
 
 }
 
@@ -91,17 +109,28 @@ void ofApp::setup() {
 void ofApp::update() {
 	//saveFile();
 
-	pineapple->integrate();
+	pineapple->integrate(); // should we move this to ship's update?
+	pineapple->update();
     
     //Update forces
-    g->updateForce(pineapple, 1.62);
-    tf->updateForce(pineapple, 5.0);
-    turb->updateForce(pineapple, 10);
+    gravityForce->updateForce(pineapple, -3.72);
+	
+	if (bSpacePressed || bKeyPressed) {
+		thrustForce->updateForce(pineapple, 5.0);
+	}
+    turbForce->updateForce(pineapple, 10);
     
+
     checkCollisions();
     
     //Onscreen text to help player
 //    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
+
+
+    //Update camera views
+    launchCam.lookAt(pineapple->model.getPosition());
+    onboardCam.setPosition(pineapple->model.getPosition());
+    onboardCam.lookAt(glm::vec3(0,0,0));
 
 }
 
@@ -114,8 +143,14 @@ void ofApp::draw() {
 	glDepthMask(false);
 	if (!bHide) gui.draw();
 	glDepthMask(true);
+    
+    seconds = pineapple->timeLeft/1000;
+    //Onscreen text to guide player
+    secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
+    velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 
-	cam.begin();
+	theCam->begin();
+    
 	ofPushMatrix();
 	//    ofSetColor(ofColor::purple);
 	//    Octree::drawBox(testBox);
@@ -169,7 +204,7 @@ void ofApp::draw() {
 	}
 	if (bTerrainSelected) drawAxis(ofVec3f(0, 0, 0));
 
-
+	
 
 	if (bDisplayPoints) {                // display points as an option    
 		glPointSize(3);
@@ -205,14 +240,16 @@ void ofApp::draw() {
 	//
 	if (pointSelected) {
 		ofVec3f p = octree.mesh.getVertex(selectedNode.points[0]);
-		ofVec3f d = p - cam.getPosition();
+		ofVec3f d = p - theCam->getPosition();
 		ofSetColor(ofColor::lightGreen);
 		ofDrawSphere(p, .02 * d.length());
 	}
 
-	ofPopMatrix();
-	cam.end();
+	// draw ship's particle emitter
+	if (bSpacePressed) 	pineapple->draw();
 
+	ofPopMatrix();
+	theCam->end();
 }
 
 
@@ -251,8 +288,8 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'C':
 	case 'c':
-		if (cam.getMouseInputEnabled()) cam.disableMouseInput();
-		else cam.enableMouseInput();
+		if (mainCam.getMouseInputEnabled()) mainCam.disableMouseInput();
+		else mainCam.enableMouseInput();
 		break;
 	case 'F':
 	case 'f':
@@ -263,14 +300,23 @@ void ofApp::keyPressed(int key) {
 		break;
 	case 'L':
 	case 'l':
-		bDisplayLeafNodes = !bDisplayLeafNodes;
+		//bDisplayLeafNodes = !bDisplayLeafNodes;
+        theCam = &launchCam;
 		break;
+    case 'm':
+        theCam = &mainCam;
+        break;
 	case 'O':
 	case 'o':
-		bDisplayOctree = !bDisplayOctree;
+		//bDisplayOctree = !bDisplayOctree;
+        theCam = &onboardCam;
 		break;
-	case 'r':
-		cam.reset();
+  case 'r':
+    mainCam.reset();
+		pineapple->model.setPosition(0, 0, 0);
+		pineapple->velocity = ofVec3f(0, 0, 0);
+		pineapple->angularVelocity = 0;
+		pineapple->rotation = 0;
 		break;
 	case 's':
 		savePicture();
@@ -289,37 +335,45 @@ void ofApp::keyPressed(int key) {
 		toggleWireframeMode();
 		break;
 	case 'z':
-		bZAxis = true;
+		break;
+	case ',': // '<' key
+		pineapple->angularVelocity -= 0.5;
+		pineapple->axis = ofVec3f(0, 1, 0);
+		bKeyPressed = true;
+		break;
+	case '.': // '>' key
+		pineapple->angularVelocity += 0.5;
+		pineapple->axis = ofVec3f(0, 1, 0);
+		bKeyPressed = true;
 		break;
 	case OF_KEY_RIGHT:
 		pineapple->velocity.x += 2;
+		pineapple->axis = ofVec3f(1, 0, 0);
 		bKeyPressed = true;
-		//cout << "right" << endl;
 		break;
 	case OF_KEY_LEFT:
-		bKeyPressed = true;
 		pineapple->velocity.x -= 2;
-		//cout << "left" << endl;
-		break;
-	case OF_KEY_UP:     // go forward
+		pineapple->axis = ofVec3f(1, 0, 0);
 		bKeyPressed = true;
-		if (bZAxis)
-			pineapple->velocity.z -= 2;
-		else
-			pineapple->velocity += 2 * pineapple->heading();
-		//cout << "up" << endl;
 		break;
-	case OF_KEY_DOWN:   // go backward
-        thrust_start = ofGetElapsedTimeMillis();
-        bKeyPressed = true;
-		if (bZAxis)
-			pineapple->velocity.z += 2;
-		else
-			pineapple->velocity -= 2 * pineapple->heading();
-		//cout << "down" << endl;
+	case OF_KEY_UP:     
+		bKeyPressed = true;
+		pineapple->velocity.z -= 2;
+		pineapple->axis = ofVec3f(0, 0, 1);
+		break;
+	case OF_KEY_DOWN: 
+    bKeyPressed = true;
+		pineapple->velocity.z += 2;
+		pineapple->axis = ofVec3f(0, 0, 1);
+		break;
+	case ' ':
+    thrust_start = ofGetElapsedTimeMillis();
+    pineapple->thrustersOn = true;
+		bSpacePressed = true;
+		pineapple->velocity -= 2 * pineapple->heading();
 		break;
 	case OF_KEY_ALT:
-		cam.enableMouseInput();
+		mainCam.enableMouseInput();
 		bAltKeyDown = true;
 		break;
 	case OF_KEY_CONTROL:
@@ -351,7 +405,7 @@ void ofApp::keyReleased(int key) {
 	switch (key) {
 
 	case OF_KEY_ALT:
-		cam.disableMouseInput();
+		mainCam.disableMouseInput();
 		bAltKeyDown = false;
 		break;
 	case OF_KEY_CONTROL:
@@ -359,8 +413,11 @@ void ofApp::keyReleased(int key) {
 		break;
 	case OF_KEY_SHIFT:
 		break;
-	case 'z':
-		bZAxis = false;
+	case '>':
+		bKeyPressed = false;
+		break;
+	case '<':
+		bKeyPressed = false;
 		break;
 	case OF_KEY_RIGHT:
 		bKeyPressed = false;
@@ -368,14 +425,18 @@ void ofApp::keyReleased(int key) {
 	case OF_KEY_LEFT:
 		bKeyPressed = false;
 		break;
-	case OF_KEY_UP:     // go forward
+	case OF_KEY_UP: 
 		bKeyPressed = false;
 		break;
-	case OF_KEY_DOWN:   // go backward
-        thrust_end = ofGetElapsedTimeMillis();
-        pineapple->timeLeft -= (thrust_end - thrust_start);
-        cout << "time left: " << pineapple->timeLeft;
+	case OF_KEY_DOWN:
 		bKeyPressed = false;
+		break;
+	case ' ': // spacebar
+        thrust_end = ofGetElapsedTimeMillis();
+        pineapple->thrustersOn = false;
+		bSpacePressed = false;
+		pineapple->timeLeft -= (thrust_end - thrust_start);
+		cout << "time left: " << pineapple->timeLeft << endl;
 		break;
 	default:
 		break;
@@ -397,17 +458,17 @@ void ofApp::mousePressed(int x, int y, int button) {
 
 	// if moving camera, don't allow mouse interaction
 	//
-	if (cam.getMouseInputEnabled()) return;
+	if (mainCam.getMouseInputEnabled()) return;
 
 	// if moving camera, don't allow mouse interaction
 //
-	if (cam.getMouseInputEnabled()) return;
+	if (mainCam.getMouseInputEnabled()) return;
 
 	// if rover is loaded, test for selection
 	//
 	if (bLanderLoaded) {
-		glm::vec3 origin = cam.getPosition();
-		glm::vec3 mouseWorld = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
+		glm::vec3 origin = mainCam.getPosition();
+		glm::vec3 mouseWorld = mainCam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
 		glm::vec3 mouseDir = glm::normalize(mouseWorld - origin);
 
 		ofVec3f min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
@@ -417,7 +478,7 @@ void ofApp::mousePressed(int x, int y, int button) {
 		bool hit = bounds.intersect(Ray(Vector3(origin.x, origin.y, origin.z), Vector3(mouseDir.x, mouseDir.y, mouseDir.z)), 0, 10000);
 		if (hit) {
 			bLanderSelected = true;
-			mouseDownPos = getMousePointOnPlane(pineapple->model.getPosition(), cam.getZAxis());
+			mouseDownPos = getMousePointOnPlane(pineapple->model.getPosition(), mainCam.getZAxis());
 			mouseLastPos = mouseDownPos;
 			bInDrag = true;
 		}
@@ -433,8 +494,8 @@ void ofApp::mousePressed(int x, int y, int button) {
 
 bool ofApp::raySelectWithOctree(ofVec3f &pointRet) {
 	ofVec3f mouse(mouseX, mouseY);
-	ofVec3f rayPoint = cam.screenToWorld(mouse);
-	ofVec3f rayDir = rayPoint - cam.getPosition();
+	ofVec3f rayPoint = mainCam.screenToWorld(mouse);
+	ofVec3f rayDir = rayPoint - mainCam.getPosition();
 	rayDir.normalize();
 	Ray ray = Ray(Vector3(rayPoint.x, rayPoint.y, rayPoint.z),
 		Vector3(rayDir.x, rayDir.y, rayDir.z));
@@ -455,13 +516,13 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 	// if moving camera, don't allow mouse interaction
 	//
-	if (cam.getMouseInputEnabled()) return;
+	if (mainCam.getMouseInputEnabled()) return;
 
 	if (bInDrag) {
 
 		glm::vec3 landerPos = pineapple->model.getPosition();
 
-		glm::vec3 mousePos = getMousePointOnPlane(landerPos, cam.getZAxis());
+		glm::vec3 mousePos = getMousePointOnPlane(landerPos, mainCam.getZAxis());
 		glm::vec3 delta = mousePos - mouseLastPos;
 
 		landerPos += delta;
@@ -590,8 +651,8 @@ void ofApp::dragEvent2(ofDragInfo dragInfo) {
 
 bool ofApp::mouseIntersectPlane(ofVec3f planePoint, ofVec3f planeNorm, ofVec3f &point) {
 	ofVec2f mouse(mouseX, mouseY);
-	ofVec3f rayPoint = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
-	ofVec3f rayDir = rayPoint - cam.getPosition();
+	ofVec3f rayPoint = mainCam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
+	ofVec3f rayDir = rayPoint - mainCam.getPosition();
 	rayDir.normalize();
 	return (rayIntersectPlane(rayPoint, rayDir, planePoint, planeNorm, point));
 }
@@ -624,9 +685,9 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 				// Setup our rays
 				//
-		glm::vec3 origin = cam.getPosition();
-		glm::vec3 camAxis = cam.getZAxis();
-		glm::vec3 mouseWorld = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
+		glm::vec3 origin = mainCam.getPosition();
+		glm::vec3 camAxis = mainCam.getZAxis();
+		glm::vec3 mouseWorld = mainCam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
 		glm::vec3 mouseDir = glm::normalize(mouseWorld - origin);
 		float distance;
 
@@ -661,9 +722,9 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 glm::vec3 ofApp::getMousePointOnPlane(glm::vec3 planePt, glm::vec3 planeNorm) {
 	// Setup our rays
 	//
-	glm::vec3 origin = cam.getPosition();
-	glm::vec3 camAxis = cam.getZAxis();
-	glm::vec3 mouseWorld = cam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
+	glm::vec3 origin = mainCam.getPosition();
+	glm::vec3 camAxis = mainCam.getZAxis();
+	glm::vec3 mouseWorld = mainCam.screenToWorld(glm::vec3(mouseX, mouseY, 0));
 	glm::vec3 mouseDir = glm::normalize(mouseWorld - origin);
 	float distance;
 
