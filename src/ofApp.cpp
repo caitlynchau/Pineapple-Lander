@@ -23,7 +23,7 @@ void ofApp::setup() {
 	bLanderLoaded = false;
 	bTerrainSelected = true;
 	//	ofSetWindowShape(1024, 768);
-    background.load("spongebobBG1.jpeg");
+    //background.load("spongebobBG1.jpeg");
     
     launchCam.setPosition(glm::vec3(0,0,3));
     launchCam.lookAt(glm::vec3(0,0,-1));

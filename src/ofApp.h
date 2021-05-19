@@ -69,6 +69,7 @@ class ofApp : public ofBaseApp{
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
         int seconds;
+        vector<glm::vec3> stars;
 		
     ofxIntSlider numLevels;
 		ofxPanel gui;
