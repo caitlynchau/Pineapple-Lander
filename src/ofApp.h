@@ -118,5 +118,7 @@ class ofApp : public ofBaseApp{
 
 		void debug(); // delete this lolol
 		MarkerSystem * testMarkers;
+    
+        glm::vec3 crashPosition = glm::vec3(0,0,0); // Save the crach position for the launchCam & onboardCam
         
 };
