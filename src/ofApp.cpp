@@ -32,12 +32,8 @@ void ofApp::setup() {
 	bTerrainSelected = true;
 	//	ofSetWindowShape(1024, 768);
     //background.load("spongebobBG1.jpeg");
-    
-    launchCam.setPosition(glm::vec3(0,0,3));
-    launchCam.lookAt(glm::vec3(0,0,-1));
-    
-    theCam = &mainCam;
-    
+        
+    theCam = &launchCam;    // set the cam to the launchCam
     mainCam.setDistance(25);
     mainCam.setNearClip(.1);
     mainCam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
@@ -117,11 +113,11 @@ void ofApp::setup() {
     explosion = new ParticleEmitter(new ParticleSystem());
     explosion->setOneShot(true);
     explosion->setEmitterType(RadialEmitter);
-    explosion->setLifespan(10);
+    explosion->setLifespan(0.4);
     explosion->setRate(5);
-    explosion->setParticleRadius(5);
-    explosion->setGroupSize(56);
-    explosion->setVelocity(ofVec3f(70, 70, 70));
+    explosion->setParticleRadius(0.5);
+    explosion->setGroupSize(50);
+    explosion->setVelocity(ofVec3f(30, 30, 30));
     
     //Create themed background
     for(int i = 0; i < 100; i++) {
@@ -154,42 +150,69 @@ void ofApp::setup() {
 //
 void ofApp::update() {
 
-	pineapple->integrate(); // should we move this to ship's update?
-	pineapple->update();
-    
-    explosion->update();
+	
 
     //Update forces
-    if(gameState == Flying) { // not landed, not crashed
-        gravityForce->updateForce(pineapple, -3.72);
-        turbForce->updateForce(pineapple, 10);
+    if (!gameStarted && !gameEnded) // new game
+    {
+        launchCam.setPosition(glm::vec3(pineapple->model.getPosition().x, pineapple->model.getPosition().y + 10, pineapple->model.getPosition().z + 50));
+        launchCam.lookAt(pineapple->model.getPosition());
+        onboardCam.setPosition(pineapple->model.getPosition());
+        onboardCam.lookAt(glm::vec3(0,0,0));
     }
-	else if (gameState == Crashed) { // crashed
-		// explosion
-		cout << "CRASHED" << endl;
-		// delete ship? TO BE CONTINUED
-		//explosion.sys->addForce()
-	}
-	else if (gameState == Landed) { // landed successfully
-		//cout << "LANDED" << endl;
-	}
-	
-	if (pineapple->thrustersOn) {
-		thrustForce->updateForce(pineapple, 5.0);
-	}
+    else if (gameStarted && !gameEnded)  // Game in progress
+    {
+        pineapple->integrate(); // should we move this to ship's update?
+        pineapple->update();
+//        explosion->update();
+        launchCam.setPosition(glm::vec3(pineapple->model.getPosition().x, pineapple->model.getPosition().y + 10, pineapple->model.getPosition().z + 50));
+        launchCam.lookAt(pineapple->model.getPosition());
+        onboardCam.setPosition(pineapple->model.getPosition());
+        onboardCam.lookAt(glm::vec3(0,0,0));
+        
+        if(gameState == Flying) { // not landed, not crashed
+                gravityForce->updateForce(pineapple, -3.72);
+                turbForce->updateForce(pineapple, 10);
+            }
+        if (pineapple->thrustersOn) {
+            thrustForce->updateForce(pineapple, 5.0);
+        }
+        
+        checkCollisions();
+        checkFlightPath();
+    }
+    else if (!gameStarted && gameEnded) // Game over
+    {
+        //Update camera views
+        launchCam.setPosition(crashPosition);
+        launchCam.lookAt(pineapple->model.getPosition());
+        onboardCam.setPosition(crashPosition);
+        onboardCam.lookAt(glm::vec3(0,0,0));
+    }
+    explosion->update();
     
-
-    checkCollisions();
-	checkFlightPath();
+//	else if (gameState == Crashed) { // crashed
+//		// explosion
+//		cout << "CRASHED" << endl;
+//
+//		// delete ship? TO BE CONTINUED
+//		//explosion.sys->addForce()
+//	}
+//	else if (gameState == Landed) { // landed successfully
+//		//cout << "LANDED" << endl;
+//	}
+	
     
     //Onscreen text to help player
 //    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
 
-
-    //Update camera views
-    launchCam.lookAt(pineapple->model.getPosition());
-    onboardCam.setPosition(pineapple->model.getPosition());
-    onboardCam.lookAt(glm::vec3(0,0,0));
+    // if (!gameStarted && !gameEnded)
+    // new game
+    
+//    launchCam.setPosition(glm::vec3(pineapple->model.getPosition().x, pineapple->model.getPosition().y + 10, pineapple->model.getPosition().z + 50));
+//    launchCam.lookAt(pineapple->model.getPosition());
+//    onboardCam.setPosition(pineapple->model.getPosition());
+//    onboardCam.lookAt(glm::vec3(0,0,0));
 
 	// Game state
 	if (pineapple->timeLeft <= 0) {;
@@ -266,7 +289,7 @@ void ofApp::draw() {
 		ofEnableLighting();              // shaded mode
 		mars.drawFaces();
 		ofMesh mesh;
-		if (bLanderLoaded) {
+		if (bLanderLoaded && !gameEnded) {
 			pineapple->model.drawFaces();
 			if (!bTerrainSelected) drawAxis(pineapple->model.getPosition());
 			if (bDisplayBBoxes) {
@@ -441,50 +464,69 @@ void ofApp::keyPressed(int key) {
 		bZAxis = true;
 		break;
 	case ',': // '<' key
-		pineapple->thrustersOn = true;
-		thrust_start = ofGetElapsedTimeMillis();
-		pineapple->angularVelocity -= 0.2;
-		pineapple->axis = ofVec3f(0, 1, 0);
+        if (gameStarted && !gameEnded)
+        {
+            pineapple->thrustersOn = true;
+            thrust_start = ofGetElapsedTimeMillis();
+            pineapple->angularVelocity -= 0.2;
+            pineapple->axis = ofVec3f(0, 1, 0);
+        }
 		break;
 	case '.': // '>' key
-		pineapple->thrustersOn = true;
-		thrust_start = ofGetElapsedTimeMillis();
-		pineapple->angularVelocity += 0.2;
-		pineapple->axis = ofVec3f(0, 1, 0);
+        if (gameStarted && !gameEnded)
+        {
+            pineapple->thrustersOn = true;
+            thrust_start = ofGetElapsedTimeMillis();
+            pineapple->angularVelocity += 0.2;
+            pineapple->axis = ofVec3f(0, 1, 0);
+        }
 		break;
 	case OF_KEY_RIGHT:
-		pineapple->thrustersOn = true;
-		thrust_start = ofGetElapsedTimeMillis();
-		if (bZAxis) {
-			pineapple->velocity.z += 2;
-			pineapple->axis = ofVec3f(0, 0, 1);
-		}
-		else {
-			pineapple->velocity.x += 2;
-			pineapple->axis = ofVec3f(1, 0, 0);
-		}
+        if (gameStarted && !gameEnded)
+        {
+            pineapple->thrustersOn = true;
+            thrust_start = ofGetElapsedTimeMillis();
+            if (bZAxis) {
+                pineapple->velocity.z += 2;
+                pineapple->axis = ofVec3f(0, 0, 1);
+            }
+            else {
+                pineapple->velocity.x += 2;
+                pineapple->axis = ofVec3f(1, 0, 0);
+            }
+        }
 		break;
 	case OF_KEY_LEFT:
-		pineapple->thrustersOn = true;
-		thrust_start = ofGetElapsedTimeMillis();
-		if (bZAxis) {
-			pineapple->velocity.z -= 2;
-			pineapple->axis = ofVec3f(0, 0, 1);
-		}
-		else {
-			pineapple->velocity.x -= 2;
-			pineapple->axis = ofVec3f(1, 0, 0);
-		}
+        if (gameStarted && !gameEnded)
+        {
+            pineapple->thrustersOn = true;
+            thrust_start = ofGetElapsedTimeMillis();
+            if (bZAxis) {
+                pineapple->velocity.z -= 2;
+                pineapple->axis = ofVec3f(0, 0, 1);
+            }
+            else {
+                pineapple->velocity.x -= 2;
+                pineapple->axis = ofVec3f(1, 0, 0);
+            }
+        }
 		break;
-	case OF_KEY_UP:     
-		pineapple->thrustersOn = true;
-		thrust_start = ofGetElapsedTimeMillis();
-		pineapple->velocity -= 2 * pineapple->heading();
+	case OF_KEY_UP:
+        if (gameStarted && !gameEnded)
+        {
+            pineapple->thrustersOn = true;
+            thrust_start = ofGetElapsedTimeMillis();
+            pineapple->velocity -= 2 * pineapple->heading();
+        }
 		break;
-	case OF_KEY_DOWN: 
-		pineapple->thrustersOn = true;
-		thrust_start = ofGetElapsedTimeMillis();
-		pineapple->velocity += 2 * pineapple->heading();
+	case OF_KEY_DOWN:
+        if (gameStarted && !gameEnded)
+        {
+            pineapple->thrustersOn = true;
+            thrust_start = ofGetElapsedTimeMillis();
+            pineapple->velocity += 2 * pineapple->heading();
+        }
+		
 		break;
 	case ' ':
 		if (!gameStarted && !gameEnded) { // new player
@@ -917,6 +959,9 @@ void ofApp::checkCollisions()
 				// if the incoming velocity is greater than 15(?), then crash
 				if (vel.y < -15) {
 					gameState = Crashed;
+                    gameEnded = true;
+                    gameStarted = false;
+                    crashPosition = launchCam.getPosition();
                     //explosion->setPosition(vertex);
                     explode(vertex);
                     //explosion.start();
