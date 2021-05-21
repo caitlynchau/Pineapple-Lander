@@ -35,7 +35,6 @@ void TurbulenceForce::updateForce(Ship* s, float t) {
 }
 
 void Ship::integrate() {
-	//pos += (velocity*dt);
 	glm::vec3 current = model.getPosition();
 	current += (velocity * dt);
 	model.setPosition(current.x, current.y, current.z);
@@ -47,7 +46,6 @@ void Ship::integrate() {
 	//
 	ofVec3f accel = acceleration;    // start with any acceleration already on the particle
 	accel += (forces * (1.0 / mass));
-	//cout << "accel: " << accel << endl;
 	velocity += accel * dt;
 
 	//add damping

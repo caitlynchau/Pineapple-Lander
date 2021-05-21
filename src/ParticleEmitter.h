@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "TransformObject.h"
 #include "ParticleSystem.h"
 
 typedef enum { DirectionalEmitter, RadialEmitter, SphereEmitter } EmitterType;

@@ -2,20 +2,17 @@
 //
 //  Kevin M. Smith
 //
-//  Octree Test - startup scene
-// 
-//
-//  Student Name:   Caitlyn Chau
-//  Date: 20210502
-
+//  Final Project - 3D Landing Simulation
+//  Student Name:   Caitlyn Chau, Iman Ereiqat, Swati Chayapathi
+//  Date: 05202021
 
 #include "ofApp.h"
 #include "Util.h"
 
-
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
 //
+// modified by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 void ofApp::setup() {
     if(background.load("spongebobBG2.jpeg"))
           cout << "background loaded" << endl;
@@ -27,9 +24,8 @@ void ofApp::setup() {
 	bCtrlKeyDown = false;
 	bLanderLoaded = false;
 	bTerrainSelected = true;
-	//	ofSetWindowShape(1024, 768);
-    //background.load("spongebobBG1.jpeg");
         
+
     theCam = &mainCam;    // set the cam to the launchCam
     mainCam.setDistance(25);
     mainCam.setNearClip(.1);
@@ -41,6 +37,7 @@ void ofApp::setup() {
 	ofEnableSmoothing();
 	ofEnableDepthTest();
     
+
     //Position ofLights
     keyLight.setup();
     keyLight.enable();
@@ -77,24 +74,21 @@ void ofApp::setup() {
     bubbleEffect.setMultiPlay(true);
     bubbleEffect.load("bubbleSound.mp3");
     bubbleEffect.setVolume(0.4f);
+
     
     //Init forces
-
     iForce = new ImpulseForce();
     gravityForce = new GravityForce(ofVec3f(0, -3.72, 0));
     thrustForce = new ThrustForce(5.0);
     turbForce = new TurbulenceForce(ofVec3f(-10, -10, -10), ofVec3f(10, 10, 10));
-
     
     
 	// setup rudimentary lighting 
 	//
 	initLightingAndMaterials();
 
-   
-    
+
     background.resize(736*6, 368*6);
-//	if (mars.loadModel("mars-low-5x-v2.obj"))
     ofDisableArbTex();
     ofLoadImage(sandTexture, "spongebobSand.png");
     ofLoadImage(pTexture, "pTex2.jpeg");
@@ -110,7 +104,7 @@ void ofApp::setup() {
 	gameEnded = false;
 
 
-	// Trajectory markers for testing xD
+	// Trajectory markers for testing
 	testMarkers = new MarkerSystem();
 	testMarkers->init();
 	numMarkersHit = 0;
@@ -132,8 +126,6 @@ void ofApp::setup() {
 	// Try loading model
 	if (lander.loadModel("pShip2.obj")) {
 		lander.setScaleNormalization(false);
-		//        lander.setScale(.1, .1, .1);
-			//    lander.setPosition(point.x, point.y, point.z);
 		lander.setPosition(0, -1, 0);
 
 		bLanderLoaded = true;
@@ -146,7 +138,6 @@ void ofApp::setup() {
 		// Create new ship
 		pineapple = new Ship(lander);
 		pineapple->setup();
-		
 	}
 	else cout << "Error: Can't load model" << endl;
     
@@ -174,7 +165,6 @@ void ofApp::setup() {
         //bottom
         stars.push_back(glm::vec3(ofRandom(-700,700), ofRandom(500,600), ofRandom(-700, 700)));
     }
-
     
 	if (!secondsText.load("Krabby_Patty.ttf", 15) ||
 		!velocityText.load("Krabby_Patty.ttf", 15) ||
@@ -183,12 +173,11 @@ void ofApp::setup() {
         !altitudeText.load("Krabby_Patty.ttf", 15)){
 		cout << "Error: Can't load font" << endl;
 	}
-
 }
 
 //--------------------------------------------------------------
 // incrementally update scene (animation)
-//
+// modified by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 void ofApp::update() {
 
     //Update forces
@@ -201,9 +190,8 @@ void ofApp::update() {
     }
     else if (gameStarted && !gameEnded)  // Game in progress
     {
-        pineapple->integrate(); // should we move this to ship's update?
+        pineapple->integrate();
         pineapple->update();
-//        explosion->update();
         launchCam.setPosition(glm::vec3(pineapple->model.getPosition().x, pineapple->model.getPosition().y + 10, pineapple->model.getPosition().z + 50));
         launchCam.lookAt(pineapple->model.getPosition());
         onboardCam.setPosition(pineapple->model.getPosition());
@@ -236,29 +224,6 @@ void ofApp::update() {
     }
     explosion->update();
     
-//	else if (gameState == Crashed) { // crashed
-//		// explosion
-//		cout << "CRASHED" << endl;
-//
-//		// delete ship? TO BE CONTINUED
-//		//explosion.sys->addForce()
-//	}
-//	else if (gameState == Landed) { // landed successfully
-//		//cout << "LANDED" << endl;
-//	}
-	
-    
-    //Onscreen text to help player
-//    ofDrawText(pineapple->timeLeft/1000 + "seconds of fuel left");
-
-    // if (!gameStarted && !gameEnded)
-    // new game
-    
-//    launchCam.setPosition(glm::vec3(pineapple->model.getPosition().x, pineapple->model.getPosition().y + 10, pineapple->model.getPosition().z + 50));
-//    launchCam.lookAt(pineapple->model.getPosition());
-//    onboardCam.setPosition(pineapple->model.getPosition());
-//    onboardCam.lookAt(glm::vec3(0,0,0));
-
 	// Game state
 	if (pineapple->timeLeft <= 0) {;
 		gameStarted = false;
@@ -271,14 +236,11 @@ void ofApp::update() {
 	}
 }
 
-
+// modified by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 //--------------------------------------------------------------
 void ofApp::draw() {
 
 	ofBackground(ofColor::cornflowerBlue);
-    //background.resize(ofGetWindowWidth(), ofGetWindowHeight());
-    //background.draw(0,0);
-    
 
 	glDepthMask(false);
 	if (!bHide) gui.draw();
@@ -334,7 +296,6 @@ void ofApp::draw() {
     explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
-		// ofSetColor(255, 0, 0);
 		mars.drawWireframe();
 		if (bLanderLoaded) {
 			pineapple->model.drawWireframe();
@@ -349,7 +310,6 @@ void ofApp::draw() {
         sandTexture.unbind();
 		ofMesh mesh;
 		if (bLanderLoaded && !gameEnded) {
-//            ofSetColor(255, 0, 0);
             ofDisableArbTex();
             ofDisableLighting();
             pTexture.bind();
@@ -393,14 +353,12 @@ void ofApp::draw() {
 
 	if (bDisplayPoints) {                // display points as an option    
 		glPointSize(3);
-		//ofSetColor(ofColor::green);
 		mars.drawVertices();
 	}
 
 	// highlight selected point (draw sphere around selected point)
 	//
 	if (bPointSelected) {
-		//ofSetColor(ofColor::blue);
 		ofDrawSphere(selectedPoint, .1);
 	}
 
@@ -409,15 +367,12 @@ void ofApp::draw() {
 	//
 	ofDisableLighting();
 	int level = 0;
-	//	ofNoFill();
 
 	if (bDisplayLeafNodes) {
 		octree.drawLeafNodes(octree.root);
-		//cout << "num leaf: " << octree.numLeaf << endl;
 	}
 	else if (bDisplayOctree) {
 		ofNoFill();
-		//ofSetColor(ofColor::white);
 		octree.draw(numLevels, 0);
 	}
 
@@ -426,14 +381,12 @@ void ofApp::draw() {
 	if (pointSelected) {
 		ofVec3f p = octree.mesh.getVertex(selectedNode.points[0]);
 		ofVec3f d = p - theCam->getPosition();
-		//ofSetColor(ofColor::lightGreen);
 		ofDrawSphere(p, .02 * d.length());
 	}
 
 	// draw ship's particle emitter
 	if (pineapple->thrustersOn) 	pineapple->draw();
 
-	// for testing lol
 	testMarkers->draw();
 
 
@@ -482,7 +435,7 @@ void ofApp::drawAxis(ofVec3f location) {
 	ofPopMatrix();
 }
 
-
+// modified by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 void ofApp::keyPressed(int key) {
 	switch (key) {
     case 'a':
@@ -679,7 +632,7 @@ void ofApp::keyReleased(int key) {
         bubbleEffect.stop();
 		thrust_end = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = false;
-		pineapple->timeLeft -= (thrust_end - thrust_start)*3; 
+		pineapple->timeLeft -= (thrust_end - thrust_start) * 3;
 	case ' ': 
 		break;
 	default:
@@ -700,15 +653,6 @@ void ofApp::mouseMoved(int x, int y) {
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
-
-	// for testing: draw markers for trajectory
-	/*
-	glm::vec3 p = theCam->screenToWorld(glm::vec3(x, y, 0)); // convert to 3d
-	cout << "mouse pressed " << p << endl;
-	Marker m;
-	m.setPosition(p);
-	testMarkers->add(m);
-	*/
 
 	// if moving camera, don't allow mouse interaction
 	//
@@ -791,18 +735,6 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 		octree.intersect(bounds, octree.root, colBoxList);
 
-
-		//        cout << "leaves: " << colBoxList.size() << endl;
-		//        if(colBoxList.size() > 0) {
-		//            for(int i = 0; i < colBoxList.size(); i++) {
-		//                if (bounds.overlap(colBoxList[i])) {
-		//                    cout << "overlap" << endl;
-		//                }
-		//                else {
-		//                    cout << "not" << endl;
-		//                }
-		//            }
-		//        }
 
 	}
 	else {
@@ -1001,12 +933,14 @@ void ofApp::debug() {
 
 }
 
+// Implemented by Swati Chayapathi
 void ofApp::explode(ofVec3f p) {
     explosion->setPosition(p);
     explosion->sys->reset();
     explosion->start();
 }
 
+// Implemented by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 void ofApp::checkCollisions()
 {
     nodeList.clear();                 // clear list of overlapped nodes
@@ -1023,27 +957,18 @@ void ofApp::checkCollisions()
     for (int i = 0; i < nodeList.size(); i++)
     {
         glm::vec3 vel = pineapple->velocity;
-//        if (vel.y >= 0)
-//        {
-//            break;
-//        }
         
         glm::vec3 vertex = octree.mesh.getVertex(nodeList.at(i).points.at(0));
         glm::vec3 pineapplePosition = pineapple->model.getPosition();
         float distance = glm::distance(pineapplePosition, vertex);
-        //cout << "dist: " << distance << endl;
         
         if (distance <= 2)
         {
             
             glm::vec3 norm = octree.mesh.getNormal(nodeList.at(i).points.at(0));
         
-            //vel *= 0.9;
             glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
-            //cout << "i: " << impulseF << endl;
-            //cout << "g: " << gravityForce->g << endl;
-            //cout << "forces: " << pineapple->forces << endl;
-            //cout << "turb: " << turbForce << endl;
+            
             if (!iForce->applied)
             {
                 pineapple->forces += ofGetFrameRate() * impulseF;
@@ -1055,9 +980,7 @@ void ofApp::checkCollisions()
                     gameEnded = true;
                     gameStarted = false;
                     crashPosition = launchCam.getPosition();
-                    //explosion->setPosition(vertex);
                     explode(vertex);
-                    //explosion.start();
                     break;
 				}
 				else {
@@ -1073,11 +996,11 @@ void ofApp::checkCollisions()
 
     if (nodeList.size() == 0)
     {
-        //landed = false; // im not sure what dis means,, is game over?
 		gameState = Flying;
     }
 }
 
+// Implemented by Caitlyn Chau
 void ofApp::checkFlightPath() {
 
 	glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition() + 5;
