@@ -61,6 +61,7 @@ void ofApp::setup() {
 //	if (mars.loadModel("mars-low-5x-v2.obj"))
     ofDisableArbTex();
     ofLoadImage(sandTexture, "spongebobSand.png");
+    ofLoadImage(pTexture, "pTex2.jpeg");
         if (mars.loadModel("bbTerrain3.obj"))
 		cout << "Model loaded" << endl;
 	else
@@ -93,7 +94,7 @@ void ofApp::setup() {
 	mouseIntersectPlane(ofVec3f(0, 0, 0), mainCam.getZAxis(), point);
 	
 	// Try loading model
-	if (lander.loadModel("burger.obj")) {
+	if (lander.loadModel("pShip2.obj")) {
 		lander.setScaleNormalization(false);
 		//        lander.setScale(.1, .1, .1);
 			//    lander.setPosition(point.x, point.y, point.z);
@@ -252,7 +253,7 @@ void ofApp::draw() {
 	else if (gameStarted && !gameEnded) { // game in progress
 		seconds = pineapple->timeLeft / 1000;
 		//Onscreen text to guide player
-        ofSetColor(ofColor::white);
+         ofSetColor(ofColor::white);
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
@@ -296,7 +297,12 @@ void ofApp::draw() {
         sandTexture.unbind();
 		ofMesh mesh;
 		if (bLanderLoaded && !gameEnded) {
+//            ofSetColor(255, 0, 0);
+            ofDisableArbTex();
+            ofDisableLighting();
+            pTexture.bind();
 			pineapple->model.drawFaces();
+            pTexture.unbind();
 			if (!bTerrainSelected) drawAxis(pineapple->model.getPosition());
 			if (bDisplayBBoxes) {
 				ofNoFill();
