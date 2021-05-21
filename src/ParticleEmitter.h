@@ -42,5 +42,9 @@ public:
     float random;
 	EmitterType type;
     ofVec3f position;
+    
+    void setImage(ofImage image);
+    ofImage image;
+    bool haveImage = false;
 
 	};

@@ -18,5 +18,9 @@ public:
 	void    integrate();
 	void    draw();
 	float   age();        // sec
+    void setImage(ofImage img);
+    bool haveImage = false;
+    ofImage image;
 	ofColor color;
+    float width, height;
 };

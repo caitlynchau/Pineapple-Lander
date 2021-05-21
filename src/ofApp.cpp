@@ -25,16 +25,56 @@ void ofApp::setup() {
 	bLanderLoaded = false;
 	bTerrainSelected = true;
         
-    
-    theCam = &launchCam;    // set the cam to the launchCam
+
+    theCam = &mainCam;    // set the cam to the launchCam
     mainCam.setDistance(25);
     mainCam.setNearClip(.1);
     mainCam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
 	ofSetVerticalSync(true);
+    launchCam.setPosition(glm::vec3(-105, 0, -44));
+    launchCam.lookAt(glm::vec3(-95, 0, -34));
     mainCam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
     
+
+    //Position ofLights
+    keyLight.setup();
+    keyLight.enable();
+    keyLight.setAreaLight(1, 1);
+    keyLight.rotate(45, ofVec3f(0, 1, 0));
+    keyLight.rotate(-45, ofVec3f(1, 0, 0));
+    keyLight.setPosition(25, 15, 15);
+    
+    fillLight.setup();
+    fillLight.enable();
+    fillLight.setSpotlight();
+    fillLight.setScale(.05);
+    fillLight.setSpotlightCutOff(15);
+    fillLight.setAttenuation(2, .001, .001);
+    fillLight.rotate(-10, ofVec3f(1, 0, 0));
+    fillLight.rotate(-45, ofVec3f(0, 1, 0));
+    fillLight.setPosition(-25, 15, 15);
+    
+    rimLight.setup();
+    rimLight.enable();
+    rimLight.setSpotlight();
+    rimLight.setScale(.05);
+    rimLight.setSpotlightCutOff(30);
+    rimLight.setAttenuation(.2, .001, .001);
+    
+    rimLight.rotate(180, ofVec3f(0, 1, 0));
+    rimLight.setPosition(0, 15, -30);
+    
+    //Load Sounds
+    bgm.setMultiPlay(true);
+    bgm.load("spongebob_bgm.mp3");
+    bgm.play();
+    bgm.setVolume(0.3f);
+    bubbleEffect.setMultiPlay(true);
+    bubbleEffect.load("bubbleSound.mp3");
+    bubbleEffect.setVolume(0.4f);
+
     
     //Init forces
     iForce = new ImpulseForce();
@@ -73,7 +113,7 @@ void ofApp::setup() {
 	//
 	gui.setup();
 	gui.add(numLevels.setup("Number of Octree Levels", 1, 1, 10));
-	bHide = false;
+	bHide = true;
 
 	//  Create Octree for testing.
 	//
@@ -129,7 +169,8 @@ void ofApp::setup() {
 	if (!secondsText.load("Krabby_Patty.ttf", 15) ||
 		!velocityText.load("Krabby_Patty.ttf", 15) ||
 		!gameStateText.load("Krabby_Patty.ttf", 48) ||
-		!markersText.load("Krabby_Patty.ttf", 15)){
+		!markersText.load("Krabby_Patty.ttf", 15) ||
+        !altitudeText.load("Krabby_Patty.ttf", 15)){
 		cout << "Error: Can't load font" << endl;
 	}
 }
@@ -138,6 +179,7 @@ void ofApp::setup() {
 // incrementally update scene (animation)
 // modified by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 void ofApp::update() {
+
     //Update forces
     if (!gameStarted && !gameEnded) // new game
     {
@@ -158,7 +200,8 @@ void ofApp::update() {
         if(gameState == Flying) { // not landed, not crashed
                 gravityForce->updateForce(pineapple, -3.72);
                 turbForce->updateForce(pineapple, 10);
-            }
+        }
+        
         if (pineapple->thrustersOn) {
             thrustForce->updateForce(pineapple, 5.0);
         }
@@ -168,7 +211,12 @@ void ofApp::update() {
     }
     else if (!gameStarted && gameEnded) // Game over
     {
-        //Update camera views
+        if (gameState == Won) {
+            
+        }//Update camera views
+        theCam = &mainCam;
+        theCam->setPosition(10,10,10);
+        theCam->lookAt(crashPosition);
         launchCam.setPosition(crashPosition);
         launchCam.lookAt(pineapple->model.getPosition());
         onboardCam.setPosition(crashPosition);
@@ -199,12 +247,17 @@ void ofApp::draw() {
 	glDepthMask(true);
 
 
-	if (!gameStarted && !gameEnded) { // new game
-		gameStateText.drawString("Press space to start", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
-	}
-	if (!gameStarted && gameEnded) { // game over
-		gameStateText.drawString("Game over", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
-	}
+    if (!gameStarted && !gameEnded) { // new game
+           gameStateText.drawString("Press space to start", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+    }
+    else if (!gameStarted && gameEnded) { // game over
+        if(gameState == Won) {
+            gameStateText.drawString("You Win!", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+        }
+        else {
+            gameStateText.drawString("Game over", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+        }
+    }
 	else if (gameStarted && !gameEnded) { // game in progress
 		seconds = pineapple->timeLeft / 1000;
 		//Onscreen text to guide player
@@ -212,11 +265,15 @@ void ofApp::draw() {
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
+        if(telemetrySensor) {
+            altitudeText.drawString("Altitude: " + std::to_string(detectAltitude()), 20, 20);
+        }
+            
 	}
     
 	theCam->begin();
     background.draw(-2200,-1000,-600);
-
+   
     for(int i = 0; i < stars.size(); i++) {
         ofDrawSphere(stars[i], 1.5);
         if(i%5==0)
@@ -231,6 +288,11 @@ void ofApp::draw() {
             ofSetColor(ofColor::white);
     }
 	ofPushMatrix();
+    //Draw lights
+//    keyLight.draw();
+//    fillLight.draw();
+//    rimLight.draw();
+    
     explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
@@ -332,6 +394,20 @@ void ofApp::draw() {
 	theCam->end();
 }
 
+int ofApp::detectAltitude() {
+    glm::vec3 p = pineapple->model.getPosition();
+    Ray r = Ray(Vector3(p.x, p.y, p.z), Vector3(p.x, -500, p.z));
+    
+    //TreeNode tn;
+    TreeNode rtn;
+    octree.intersect(r, octree.root, rtn);
+    if(rtn.points.size() < 1)
+        return;
+    
+    //cout << rtn.points.at(0) << endl;
+    glm::vec3 vertex = octree.mesh.getVertex(rtn.points.at(0));
+    return p.y - vertex.y;
+}
 
 // 
 // Draw an XYZ axis in RGB at world (0,0,0) for reference.
@@ -362,6 +438,9 @@ void ofApp::drawAxis(ofVec3f location) {
 // modified by Caitlyn Chau, Iman Ereiqat & Swati Chayapathi
 void ofApp::keyPressed(int key) {
 	switch (key) {
+    case 'a':
+        telemetrySensor = !telemetrySensor;
+        break;
 	case 'B':
 	case 'b':
 		bDisplayBBoxes = !bDisplayBBoxes;
@@ -440,6 +519,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             if (bZAxis) {
                 pineapple->velocity.z += 2;
@@ -455,6 +535,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             if (bZAxis) {
                 pineapple->velocity.z -= 2;
@@ -470,6 +551,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             pineapple->velocity -= 2 * pineapple->heading();
         }
@@ -478,6 +560,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             pineapple->velocity += 2 * pineapple->heading();
         }
@@ -486,6 +569,7 @@ void ofApp::keyPressed(int key) {
 	case ' ':
 		if (!gameStarted && !gameEnded) { // new player
 			gameStarted = true;
+            theCam = &launchCam;
 		}
 		
 		break;
@@ -536,9 +620,16 @@ void ofApp::keyReleased(int key) {
 	case '>':
 	case '<':
 	case OF_KEY_RIGHT:
+        bubbleEffect.stop();
+        break;
 	case OF_KEY_LEFT:
-	case OF_KEY_UP: 
+        bubbleEffect.stop();
+        break;
+	case OF_KEY_UP:
+        bubbleEffect.stop();
+        break;
 	case OF_KEY_DOWN: // switch case fall through
+        bubbleEffect.stop();
 		thrust_end = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = false;
 		pineapple->timeLeft -= (thrust_end - thrust_start) * 3;
@@ -912,10 +1003,19 @@ void ofApp::checkCollisions()
 // Implemented by Caitlyn Chau
 void ofApp::checkFlightPath() {
 
-	glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
-	glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
+	glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition() + 5;
+	glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition() + 5;
 	Box pineappleBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 
+    
+    glm::vec3 landingBox = glm::vec3(64, 7, 13);
+    if(pineappleBounds.intersect(Ray(Vector3(landingBox.x, landingBox.y, landingBox.z), Vector3(landingBox.x+5, landingBox.y+5, landingBox.z+5)), 0, 10000)) {
+        gameState = Won;
+        cout << "win!" << endl;
+        gameStarted = false;
+        gameEnded = true;
+        return;
+    }
 	for (int i = 0; i < testMarkers->markers.size(); i++) {
 		glm::vec3 marker = testMarkers->markers[i]->position;
 		

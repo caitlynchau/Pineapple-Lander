@@ -8,7 +8,7 @@
 #include "ship.h"
 #include "MarkerSystem.h"
 
-typedef enum { Landed, Crashed, Strayed, Flying } State;
+typedef enum { Landed, Crashed, Strayed, Flying, Won } State;
 
 class ofApp : public ofBaseApp{
 
@@ -40,6 +40,7 @@ class ofApp : public ofBaseApp{
 		bool raySelectWithOctree(ofVec3f &pointRet);
         glm::vec3 getMousePointOnPlane(glm::vec3 p , glm::vec3 n);
         void explode(ofVec3f p);
+        int detectAltitude();
 
         //Time
         float thrust_start;
@@ -56,7 +57,7 @@ class ofApp : public ofBaseApp{
         ofCamera launchCam;
         ofCamera onboardCam;
 		ofxAssimpModelLoader mars, lander;
-		ofLight light;
+        ofLight keyLight, fillLight, rimLight;
 		Box boundingBox, landerBounds;
 		vector<Box> colBoxList;
 		bool bLanderSelected = false;
@@ -69,10 +70,16 @@ class ofApp : public ofBaseApp{
         ofImage background;
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
-		ofTrueTypeFont gameStateText;
-		ofTrueTypeFont markersText;
+        ofTrueTypeFont gameStateText;
+        ofTrueTypeFont markersText;
+        ofTrueTypeFont altitudeText;
         int seconds;
 		int numMarkersHit;
+        
+        //Sound Effects
+        ofSoundPlayer bgm;
+        ofSoundPlayer bubbleEffect;
+        ofSoundPlayer explosionSound;
 		
 		ofxIntSlider numLevels;
 		ofxPanel gui;
@@ -91,6 +98,7 @@ class ofApp : public ofBaseApp{
         bool bKeyPressed = false;
 		bool bLanderLoaded;
 		bool bTerrainSelected;
+        bool telemetrySensor = false;
 
 		bool gameStarted;
 		bool gameEnded;

@@ -30,6 +30,7 @@ public:
 
 	// Particle emitter for "fuel exhaust"
 	ParticleEmitter exhaust;
+    ofImage bubble;
 
 	ofxAssimpModelLoader model;
 
