@@ -70,8 +70,8 @@ class ofApp : public ofBaseApp{
         ofImage background;
         ofTrueTypeFont secondsText;
         ofTrueTypeFont velocityText;
-		ofTrueTypeFont gameStateText;
-		ofTrueTypeFont markersText; // temporary ?
+        ofTrueTypeFont gameStateText;
+        ofTrueTypeFont markersText;
         ofTrueTypeFont altitudeText;
         int seconds;
 		int numMarkersHit;
@@ -108,7 +108,7 @@ class ofApp : public ofBaseApp{
 
 		vector<Box> bboxList;
 
-		const float selectionRange = 4.0; // not sure what this is for lol
+		const float selectionRange = 4.0;
         
 		// Ship object
 		Ship *pineapple;
@@ -124,7 +124,7 @@ class ofApp : public ofBaseApp{
         float time = 0;;
 
 
-		void debug(); // delete this lolol
+		void debug();
 		MarkerSystem * testMarkers;
     
         glm::vec3 crashPosition = glm::vec3(0,0,0); // Save the crach position for the launchCam & onboardCam
