@@ -92,8 +92,12 @@ void ofApp::setup() {
 
    
     
-    background.resize(736*2, 368*2);
-	if (mars.loadModel("mars-low-5x-v2.obj"))
+    background.resize(736*6, 368*6);
+//	if (mars.loadModel("mars-low-5x-v2.obj"))
+    ofDisableArbTex();
+    ofLoadImage(sandTexture, "spongebobSand.png");
+    ofLoadImage(pTexture, "pTex2.jpeg");
+        if (mars.loadModel("bbTerrain3.obj"))
 		cout << "Model loaded" << endl;
 	else
 		cout << "Load failed" << endl;
@@ -125,7 +129,7 @@ void ofApp::setup() {
 	mouseIntersectPlane(ofVec3f(0, 0, 0), mainCam.getZAxis(), point);
 	
 	// Try loading model
-	if (lander.loadModel("burger.obj")) {
+	if (lander.loadModel("pShip2.obj")) {
 		lander.setScaleNormalization(false);
 		//        lander.setScale(.1, .1, .1);
 			//    lander.setPosition(point.x, point.y, point.z);
@@ -285,7 +289,7 @@ void ofApp::draw() {
 	else if (gameStarted && !gameEnded) { // game in progress
 		seconds = pineapple->timeLeft / 1000;
 		//Onscreen text to guide player
-        ofSetColor(ofColor::white);
+         ofSetColor(ofColor::white);
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
@@ -294,9 +298,10 @@ void ofApp::draw() {
         }
             
 	}
-
+    
 	theCam->begin();
-    background.draw(-600,-300,-600);
+    background.draw(-2200,-1000,-600);
+
     for(int i = 0; i < stars.size(); i++) {
         ofDrawSphere(stars[i], 1.5);
         if(i%5==0)
@@ -308,7 +313,7 @@ void ofApp::draw() {
         else if(i%2==0)
             ofSetColor(ofColor::lavender);
         else
-            ofSetColor(ofColor::yellow);
+            ofSetColor(ofColor::white);
     }
 	ofPushMatrix();
     //Draw lights
@@ -319,7 +324,7 @@ void ofApp::draw() {
     explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
-		ofSetColor(ofColor::slateGray);
+		// ofSetColor(255, 0, 0);
 		mars.drawWireframe();
 		if (bLanderLoaded) {
 			pineapple->model.drawWireframe();
@@ -328,11 +333,18 @@ void ofApp::draw() {
 		if (bTerrainSelected) drawAxis(ofVec3f(0, 0, 0));
 	}
 	else {
-		ofEnableLighting();              // shaded mode
+		ofDisableLighting();              // shaded mode
+        sandTexture.bind();
 		mars.drawFaces();
+        sandTexture.unbind();
 		ofMesh mesh;
 		if (bLanderLoaded && !gameEnded) {
+//            ofSetColor(255, 0, 0);
+            ofDisableArbTex();
+            ofDisableLighting();
+            pTexture.bind();
 			pineapple->model.drawFaces();
+            pTexture.unbind();
 			if (!bTerrainSelected) drawAxis(pineapple->model.getPosition());
 			if (bDisplayBBoxes) {
 				ofNoFill();
@@ -721,6 +733,7 @@ void ofApp::mousePressed(int x, int y, int button) {
 	else {
 		ofVec3f p;
 		raySelectWithOctree(p);
+		
 	}
 }
 
@@ -1014,7 +1027,7 @@ void ofApp::checkCollisions()
         {
             
             glm::vec3 norm = octree.mesh.getNormal(nodeList.at(i).points.at(0));
-            
+        
             //vel *= 0.9;
             glm::vec3 impulseF = ((restitution + 1.0) * ((-glm::dot(vel, norm)) * norm));
             //cout << "i: " << impulseF << endl;
@@ -1063,7 +1076,8 @@ void ofApp::checkFlightPath() {
 
 	for (int i = 0; i < testMarkers->markers.size(); i++) {
 		glm::vec3 marker = testMarkers->markers[i]->position;
-		bool hit = pineappleBounds.intersect(Ray(Vector3(marker.x, marker.y, marker.z), Vector3(marker.x, marker.y, marker.z)), 0, 10000);
+		
+		bool hit = pineappleBounds.intersect(Ray(Vector3(marker.x, marker.y, marker.z), Vector3(marker.x+5, marker.y+5, marker.z+5)), 0, 10000);
 		
 		if (hit && !testMarkers->markers[i]->hit) {
 			numMarkersHit++;
