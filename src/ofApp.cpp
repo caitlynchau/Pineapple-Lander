@@ -214,9 +214,9 @@ void ofApp::update() {
         if (gameState == Won) {
             
         }//Update camera views
-        theCam = &mainCam;
-        theCam->setPosition(10,10,10);
-        theCam->lookAt(crashPosition);
+//        theCam = &mainCam;
+//        theCam->setPosition(10,10,10);
+//        theCam->lookAt(crashPosition);
         launchCam.setPosition(crashPosition);
         launchCam.lookAt(pineapple->model.getPosition());
         onboardCam.setPosition(crashPosition);
