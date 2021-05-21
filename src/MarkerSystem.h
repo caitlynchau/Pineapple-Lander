@@ -6,14 +6,14 @@ class TMarker {
 public:
 	ofVec3f position;
 	ofColor color;
-	int index;
+	int boxSize;
 	bool hit = false;
 	void draw();
 
-	TMarker(ofVec3f p, int index) { // constructor
+	TMarker(ofVec3f p) { // constructor
 		this->position = p;
 		this->color = ofColor::blue;
-		this->index = index;
+		this->boxSize = 2;
 	}
 };
 
