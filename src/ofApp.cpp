@@ -587,7 +587,6 @@ void ofApp::keyReleased(int key) {
 		thrust_end = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = false;
 		pineapple->timeLeft -= (thrust_end - thrust_start) * 3; //lol im trying to make the time go by faster
-		cout << "time left: " << pineapple->timeLeft << endl;
 	case ' ': 
 		break;
 	default:
@@ -993,7 +992,8 @@ void ofApp::checkFlightPath() {
 
 	for (int i = 0; i < testMarkers->markers.size(); i++) {
 		glm::vec3 marker = testMarkers->markers[i]->position;
-		bool hit = pineappleBounds.intersect(Ray(Vector3(marker.x, marker.y, marker.z), Vector3(marker.x, marker.y, marker.z)), 0, 10000);
+		
+		bool hit = pineappleBounds.intersect(Ray(Vector3(marker.x, marker.y, marker.z), Vector3(marker.x+5, marker.y+5, marker.z+5)), 0, 10000);
 		
 		if (hit && !testMarkers->markers[i]->hit) {
 			numMarkersHit++;
