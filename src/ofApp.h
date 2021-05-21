@@ -8,7 +8,7 @@
 #include "ship.h"
 #include "MarkerSystem.h"
 
-typedef enum { Landed, Crashed, Strayed, Flying } State;
+typedef enum { Landed, Crashed, Strayed, Flying, Won } State;
 
 class ofApp : public ofBaseApp{
 

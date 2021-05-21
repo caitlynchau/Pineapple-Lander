@@ -13,7 +13,6 @@
 #include "Util.h"
 
 
-
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
 //
@@ -31,11 +30,13 @@ void ofApp::setup() {
 	//	ofSetWindowShape(1024, 768);
     //background.load("spongebobBG1.jpeg");
         
-    theCam = &launchCam;    // set the cam to the launchCam
+    theCam = &mainCam;    // set the cam to the launchCam
     mainCam.setDistance(25);
     mainCam.setNearClip(.1);
     mainCam.setFov(65.5);   // approx equivalent to 28mm in 35mm format
 	ofSetVerticalSync(true);
+    launchCam.setPosition(glm::vec3(-105, 0, -44));
+    launchCam.lookAt(glm::vec3(-95, 0, -34));
     mainCam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
@@ -190,8 +191,6 @@ void ofApp::setup() {
 //
 void ofApp::update() {
 
-	
-
     //Update forces
     if (!gameStarted && !gameEnded) // new game
     {
@@ -213,7 +212,8 @@ void ofApp::update() {
         if(gameState == Flying) { // not landed, not crashed
                 gravityForce->updateForce(pineapple, -3.72);
                 turbForce->updateForce(pineapple, 10);
-            }
+        }
+        
         if (pineapple->thrustersOn) {
             thrustForce->updateForce(pineapple, 5.0);
         }
@@ -223,7 +223,12 @@ void ofApp::update() {
     }
     else if (!gameStarted && gameEnded) // Game over
     {
-        //Update camera views
+        if (gameState == Won) {
+            
+        }//Update camera views
+        theCam = &mainCam;
+        theCam->setPosition(10,10,10);
+        theCam->lookAt(crashPosition);
         launchCam.setPosition(crashPosition);
         launchCam.lookAt(pineapple->model.getPosition());
         onboardCam.setPosition(crashPosition);
@@ -280,12 +285,17 @@ void ofApp::draw() {
 	glDepthMask(true);
 
 
-	if (!gameStarted && !gameEnded) { // new game
-		gameStateText.drawString("Press space to start", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
-	}
-	if (!gameStarted && gameEnded) { // game over
-		gameStateText.drawString("Game over", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
-	}
+    if (!gameStarted && !gameEnded) { // new game
+           gameStateText.drawString("Press space to start", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+    }
+    else if (!gameStarted && gameEnded) { // game over
+        if(gameState == Won) {
+            gameStateText.drawString("You Win!", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+        }
+        else {
+            gameStateText.drawString("Game over", ofGetWindowWidth() / 3, ofGetWindowHeight() / 2);
+        }
+    }
 	else if (gameStarted && !gameEnded) { // game in progress
 		seconds = pineapple->timeLeft / 1000;
 		//Onscreen text to guide player
@@ -301,7 +311,7 @@ void ofApp::draw() {
     
 	theCam->begin();
     background.draw(-2200,-1000,-600);
-
+   
     for(int i = 0; i < stars.size(); i++) {
         ofDrawSphere(stars[i], 1.5);
         if(i%5==0)
@@ -317,9 +327,9 @@ void ofApp::draw() {
     }
 	ofPushMatrix();
     //Draw lights
-    keyLight.draw();
-    fillLight.draw();
-    rimLight.draw();
+//    keyLight.draw();
+//    fillLight.draw();
+//    rimLight.draw();
     
     explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
@@ -606,6 +616,7 @@ void ofApp::keyPressed(int key) {
 	case ' ':
 		if (!gameStarted && !gameEnded) { // new player
 			gameStarted = true;
+            theCam = &launchCam;
 		}
 		
 		break;
@@ -668,8 +679,7 @@ void ofApp::keyReleased(int key) {
         bubbleEffect.stop();
 		thrust_end = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = false;
-		pineapple->timeLeft -= (thrust_end - thrust_start); //lol im trying to make the time go by faster
-		//cout << "time left: " << pineapple->timeLeft << endl;
+		pineapple->timeLeft -= (thrust_end - thrust_start)*3; 
 	case ' ': 
 		break;
 	default:
@@ -1070,10 +1080,19 @@ void ofApp::checkCollisions()
 
 void ofApp::checkFlightPath() {
 
-	glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition();
-	glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition();
+	glm::vec3 min = pineapple->model.getSceneMin() + pineapple->model.getPosition() + 5;
+	glm::vec3 max = pineapple->model.getSceneMax() + pineapple->model.getPosition() + 5;
 	Box pineappleBounds = Box(Vector3(min.x, min.y, min.z), Vector3(max.x, max.y, max.z));
 
+    
+    glm::vec3 landingBox = glm::vec3(64, 7, 13);
+    if(pineappleBounds.intersect(Ray(Vector3(landingBox.x, landingBox.y, landingBox.z), Vector3(landingBox.x+5, landingBox.y+5, landingBox.z+5)), 0, 10000)) {
+        gameState = Won;
+        cout << "win!" << endl;
+        gameStarted = false;
+        gameEnded = true;
+        return;
+    }
 	for (int i = 0; i < testMarkers->markers.size(); i++) {
 		glm::vec3 marker = testMarkers->markers[i]->position;
 		

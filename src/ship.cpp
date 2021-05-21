@@ -70,9 +70,8 @@ void Ship::setup() {
     //exhaust.setImage(bubble);
 	exhaust.start();
 
-	// move to starting point
-	this->position = ofVec3f(65, 28, 40);
-	this->model.setPosition(65, 28, 40);
+
+	this->model.setPosition(-95, 0, -34);
 }
 
 
