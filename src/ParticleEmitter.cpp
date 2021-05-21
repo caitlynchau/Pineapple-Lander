@@ -81,7 +81,6 @@ void ParticleEmitter::update() {
     
         if (oneShot && started) {
             if (!fired) {
-                //cout << "inside update" << endl;
                 // spawn a new particle(s)
                 //
                 for (int i = 0; i < groupSize; i++)
@@ -104,42 +103,6 @@ void ParticleEmitter::update() {
         }
     
     sys->update();
-//	if (!started) return;
-//
-//	float time = ofGetElapsedTimeMillis();
-//
-//	if ((time - lastSpawned) > (1000.0 / rate)) {
-//
-//		// spawn a new particle
-//		//
-//		Particle particle;
-//
-//		// set initial velocity and position
-//		// based on emitter type
-//		//
-//		switch (type) {
-//		case RadialEmitter:
-//			//		break;
-//		case SphereEmitter:
-//			//		break;
-//		case DirectionalEmitter:
-//			particle.velocity = velocity;
-//			particle.position.set(position);
-//			break;
-//		}
-//
-//		// other particle attributes
-//		//
-//		particle.lifespan = lifespan;
-//		particle.birthtime = time;
-//		particle.radius = particleRadius;
-//
-//		// add to system
-//		//
-//		sys->add(particle);
-//		lastSpawned = time;
-//	}
-//	sys->update();
 }
 void ParticleEmitter::spawn(float time) {
 
@@ -150,7 +113,6 @@ void ParticleEmitter::spawn(float time) {
     switch (type) {
     case RadialEmitter:
     {
-        //cout << "radial case" << endl;
         ofVec3f dir = ofVec3f(ofRandom(-10, 10), ofRandom(-10, 10), ofRandom(-10, 10));
         float speed = velocity.length();
         particle.velocity = dir.getNormalized() * speed;

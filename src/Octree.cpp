@@ -228,6 +228,7 @@ bool Octree::intersect(const Box &box, TreeNode & node, vector<Box> & boxListRtn
 	return intersects;
 }
 
+// Implemented by Iman Ereiqat
 bool Octree::nodeIntersect(const Box &box, TreeNode & node, vector<TreeNode> & nodeList)
 {
     bool intersects = false;

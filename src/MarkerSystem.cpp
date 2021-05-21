@@ -1,5 +1,7 @@
 #include "MarkerSystem.h"
 
+// Implemented by Cailyn Chau
+//
 void TMarker::draw() {
 	ofSetColor(color);
 	ofNoFill();
