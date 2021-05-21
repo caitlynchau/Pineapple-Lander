@@ -255,7 +255,7 @@ void ofApp::draw() {
         ofSetColor(ofColor::white);
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
-		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
+		markersText.drawString("Number of markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
 	}
     
 	theCam->begin();
@@ -275,9 +275,7 @@ void ofApp::draw() {
             ofSetColor(ofColor::white);
     }
 	ofPushMatrix();
-	//    ofSetColor(ofColor::purple);
-	//    Octree::drawBox(testBox);
-    //if(gameState == Crashed)
+
     explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
@@ -335,14 +333,12 @@ void ofApp::draw() {
 
 	if (bDisplayPoints) {                // display points as an option    
 		glPointSize(3);
-		//ofSetColor(ofColor::green);
 		mars.drawVertices();
 	}
 
 	// highlight selected point (draw sphere around selected point)
 	//
 	if (bPointSelected) {
-		//ofSetColor(ofColor::blue);
 		ofDrawSphere(selectedPoint, .1);
 	}
 
@@ -351,15 +347,12 @@ void ofApp::draw() {
 	//
 	ofDisableLighting();
 	int level = 0;
-	//	ofNoFill();
 
 	if (bDisplayLeafNodes) {
 		octree.drawLeafNodes(octree.root);
-		//cout << "num leaf: " << octree.numLeaf << endl;
 	}
 	else if (bDisplayOctree) {
 		ofNoFill();
-		//ofSetColor(ofColor::white);
 		octree.draw(numLevels, 0);
 	}
 
