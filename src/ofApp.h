@@ -122,5 +122,6 @@ class ofApp : public ofBaseApp{
         glm::vec3 crashPosition = glm::vec3(0,0,0); // Save the crach position for the launchCam & onboardCam
     
         ofTexture sandTexture;
+        ofTexture pTexture;
         
 };
