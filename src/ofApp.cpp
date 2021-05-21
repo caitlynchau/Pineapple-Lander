@@ -13,8 +13,6 @@
 #include "Util.h"
 
 
-// remove later lol
-//#include "TMarker.h"
 
 //--------------------------------------------------------------
 // setup scene, lighting, state and load geometry
@@ -41,6 +39,43 @@ void ofApp::setup() {
     mainCam.disableMouseInput();
 	ofEnableSmoothing();
 	ofEnableDepthTest();
+    
+    //Position ofLights
+    keyLight.setup();
+    keyLight.enable();
+    keyLight.setAreaLight(1, 1);
+    keyLight.rotate(45, ofVec3f(0, 1, 0));
+    keyLight.rotate(-45, ofVec3f(1, 0, 0));
+    keyLight.setPosition(25, 15, 15);
+    
+    fillLight.setup();
+    fillLight.enable();
+    fillLight.setSpotlight();
+    fillLight.setScale(.05);
+    fillLight.setSpotlightCutOff(15);
+    fillLight.setAttenuation(2, .001, .001);
+    fillLight.rotate(-10, ofVec3f(1, 0, 0));
+    fillLight.rotate(-45, ofVec3f(0, 1, 0));
+    fillLight.setPosition(-25, 15, 15);
+    
+    rimLight.setup();
+    rimLight.enable();
+    rimLight.setSpotlight();
+    rimLight.setScale(.05);
+    rimLight.setSpotlightCutOff(30);
+    rimLight.setAttenuation(.2, .001, .001);
+    
+    rimLight.rotate(180, ofVec3f(0, 1, 0));
+    rimLight.setPosition(0, 15, -30);
+    
+    //Load Sounds
+    bgm.setMultiPlay(true);
+    bgm.load("spongebob_bgm.mp3");
+    bgm.play();
+    bgm.setVolume(0.3f);
+    bubbleEffect.setMultiPlay(true);
+    bubbleEffect.load("bubbleSound.mp3");
+    bubbleEffect.setVolume(0.4f);
     
     //Init forces
 
@@ -79,7 +114,7 @@ void ofApp::setup() {
 	//
 	gui.setup();
 	gui.add(numLevels.setup("Number of Octree Levels", 1, 1, 10));
-	bHide = false;
+	bHide = true;
 
 	//  Create Octree for testing.
 	//
@@ -139,7 +174,8 @@ void ofApp::setup() {
 	if (!secondsText.load("Krabby_Patty.ttf", 15) ||
 		!velocityText.load("Krabby_Patty.ttf", 15) ||
 		!gameStateText.load("Krabby_Patty.ttf", 48) ||
-		!markersText.load("Krabby_Patty.ttf", 15)){
+		!markersText.load("Krabby_Patty.ttf", 15) ||
+        !altitudeText.load("Krabby_Patty.ttf", 15)){
 		cout << "Error: Can't load font" << endl;
 	}
 
@@ -253,6 +289,10 @@ void ofApp::draw() {
 		secondsText.drawString(std::to_string(seconds) + " seconds of fuel left", ofGetWindowWidth() - 250, 20);
 		velocityText.drawString("Velocity: " + std::to_string(pineapple->velocity.y), ofGetWindowWidth() - 250, 40);
 		markersText.drawString("Num markers hit: " + std::to_string(numMarkersHit), ofGetWindowWidth() - 250, 60);
+        if(telemetrySensor) {
+            altitudeText.drawString("Altitude: " + std::to_string(detectAltitude()), 20, 20);
+        }
+            
 	}
 
 	theCam->begin();
@@ -271,9 +311,11 @@ void ofApp::draw() {
             ofSetColor(ofColor::yellow);
     }
 	ofPushMatrix();
-	//    ofSetColor(ofColor::purple);
-	//    Octree::drawBox(testBox);
-    //if(gameState == Crashed)
+    //Draw lights
+    keyLight.draw();
+    fillLight.draw();
+    rimLight.draw();
+    
     explosion->draw();
 	if (bWireframe) {                    // wireframe mode  (include axis)
 		ofDisableLighting();
@@ -377,6 +419,20 @@ void ofApp::draw() {
 	theCam->end();
 }
 
+int ofApp::detectAltitude() {
+    glm::vec3 p = pineapple->model.getPosition();
+    Ray r = Ray(Vector3(p.x, p.y, p.z), Vector3(p.x, -500, p.z));
+    
+    //TreeNode tn;
+    TreeNode rtn;
+    octree.intersect(r, octree.root, rtn);
+    if(rtn.points.size() < 1)
+        return;
+    
+    //cout << rtn.points.at(0) << endl;
+    glm::vec3 vertex = octree.mesh.getVertex(rtn.points.at(0));
+    return p.y - vertex.y;
+}
 
 // 
 // Draw an XYZ axis in RGB at world (0,0,0) for reference.
@@ -407,6 +463,9 @@ void ofApp::drawAxis(ofVec3f location) {
 
 void ofApp::keyPressed(int key) {
 	switch (key) {
+    case 'a':
+        telemetrySensor = !telemetrySensor;
+        break;
 	case 'B':
 	case 'b':
 		bDisplayBBoxes = !bDisplayBBoxes;
@@ -485,6 +544,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             if (bZAxis) {
                 pineapple->velocity.z += 2;
@@ -500,6 +560,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             if (bZAxis) {
                 pineapple->velocity.z -= 2;
@@ -515,6 +576,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             pineapple->velocity -= 2 * pineapple->heading();
         }
@@ -523,6 +585,7 @@ void ofApp::keyPressed(int key) {
         if (gameStarted && !gameEnded)
         {
             pineapple->thrustersOn = true;
+            bubbleEffect.play();
             thrust_start = ofGetElapsedTimeMillis();
             pineapple->velocity += 2 * pineapple->heading();
         }
@@ -581,13 +644,20 @@ void ofApp::keyReleased(int key) {
 	case '>':
 	case '<':
 	case OF_KEY_RIGHT:
+        bubbleEffect.stop();
+        break;
 	case OF_KEY_LEFT:
-	case OF_KEY_UP: 
+        bubbleEffect.stop();
+        break;
+	case OF_KEY_UP:
+        bubbleEffect.stop();
+        break;
 	case OF_KEY_DOWN: // switch case fall through
+        bubbleEffect.stop();
 		thrust_end = ofGetElapsedTimeMillis();
 		pineapple->thrustersOn = false;
-		pineapple->timeLeft -= (thrust_end - thrust_start) * 3; //lol im trying to make the time go by faster
-		cout << "time left: " << pineapple->timeLeft << endl;
+		pineapple->timeLeft -= (thrust_end - thrust_start); //lol im trying to make the time go by faster
+		//cout << "time left: " << pineapple->timeLeft << endl;
 	case ' ': 
 		break;
 	default:

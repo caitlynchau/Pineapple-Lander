@@ -58,11 +58,16 @@ void Ship::integrate() {
 }
 
 void Ship::setup() {
+    //load sprite
+    if(bubble.load("bubbleSprite.png"))
+        cout << "exhaust sprite loaded" << endl;
+    else {ofLogFatalError("can't load bubble sprite");}
 	// set up exhaust
 	exhaust.sys->addForce(new GravityParticleForce(ofVec3f(0, -10, 0)));
 	exhaust.sys->addForce(new TurbulenceParticleForce(ofVec3f(-2, -1, -3), ofVec3f(1, 2, 5)));
     exhaust.velocity = ofVec3f(0,-20,0);
     exhaust.setEmitterType(DirectionalEmitter);
+    //exhaust.setImage(bubble);
 	exhaust.start();
 
 	// move to starting point

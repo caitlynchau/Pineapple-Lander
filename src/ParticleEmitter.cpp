@@ -41,6 +41,7 @@ void ParticleEmitter::init() {
 	visible = true;
     groupSize = 1;
 	type = RadialEmitter;
+    haveImage = false;
 }
 
 
@@ -167,8 +168,14 @@ void ParticleEmitter::spawn(float time) {
     particle.lifespan = lifespan;
     particle.birthtime = time;
     particle.radius = particleRadius;
-
+    if(haveImage)
+        particle.setImage(image);
             
     sys->add(particle);
+}
+
+void ParticleEmitter::setImage(ofImage img) {
+    image = img;
+    haveImage = true;
 }
 

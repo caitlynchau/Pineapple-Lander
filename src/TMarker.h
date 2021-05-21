@@ -12,6 +12,6 @@ public:
 
 	TMarker(ofVec3f p) { // constructor
 		position = p;
-		color = ofColor::blue;
+		color = ofColor::white;
 	}
 };

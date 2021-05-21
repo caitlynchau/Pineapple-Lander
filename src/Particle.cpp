@@ -18,11 +18,26 @@ Particle::Particle() {
 }
 
 void Particle::draw() {
-	ofSetColor(color);
-	//ofDrawSphere(position, radius);
-	ofDrawSphere(ofVec3f(ofRandom(position.x - 2, position.x + 2), ofRandom(position.y - 2, position.y + 2), position.z), radius);
+    if (haveImage) {
+        cout << "in image" << endl;
+        image.resize(7, 7);
+        width = 7;
+        height = 7;
+        image.draw(-image.getWidth() / 2.0 + position.x, -image.getHeight() / 2.0 + position.y);
+    }
+    else {
+        cout << "in draw" << endl;
+        ofSetColor(color);
+        //ofDrawSphere(position, radius);
+        ofDrawSphere(ofVec3f(ofRandom(position.x - 2, position.x + 2), ofRandom(position.y - 2, position.y + 2), position.z), radius);
+    }
 }
-
+void Particle::setImage(ofImage img) {
+    image = img;
+    haveImage = true;
+    width = image.getWidth();
+    height = image.getHeight();
+}
 
 void Particle::integrate() {
 
